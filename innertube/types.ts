@@ -62,6 +62,13 @@ export type Playlist = {
     browserEndpoint: BrowserEndPoint;
 };
 
+export type Single = {
+    thumbnail: Thumbnail[];
+    title:string;
+    year:string;
+    browserEndpoint: BrowserEndPoint;
+}
+
 export type Thumbnail = {
     url: string;
     width: number;
@@ -84,6 +91,7 @@ export type ArtistBasic = {
 
 export type BrowserEndPoint = {
     browseId: string;
+    params?: string;
     browseEndpointContextSupportedConfigs: {
         browseEndpointContextMusicConfig: {
             pageType: PageType;
@@ -91,5 +99,22 @@ export type BrowserEndPoint = {
     };
 };
 
+export type ArtistPage = {
+    name: string;
+    description: string;
+    thumbnail: Thumbnail[];
+    shuffleEndpoint: any;
+    radioEndpoint: any;
+    songs: Song[];
+    songsEndpoint: BrowserEndPoint;
+    albums: Album;
+    albumsEndpoint: BrowserEndPoint;
+    singles: Single[];
+    singlesEndpoint: BrowserEndPoint;
+};
+
 type MusicVideoType = "MUSIC_VIDEO_TYPE_ATV" | "MUSIC_VIDEO_TYPE_UGC";
-type PageType = "MUSIC_PAGE_TYPE_ARTIST" | "MUSIC_PAGE_TYPE_USER_CHANNEL";
+type PageType =
+    | "MUSIC_PAGE_TYPE_ARTIST"
+    | "MUSIC_PAGE_TYPE_USER_CHANNEL"
+    | "MUSIC_PAGE_TYPE_PLAYLIST";
