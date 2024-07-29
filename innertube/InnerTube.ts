@@ -181,7 +181,11 @@ export default class InnerTube {
             duration = infoData[infoData.length - 1]?.text;
         }
 
-        if (type === "SEARCH_TYPE_ALBUM" || type === "SEARCH_TYPE_ARTIST") {
+        if (
+            type === "SEARCH_TYPE_ALBUM" ||
+            type === "SEARCH_TYPE_ARTIST" ||
+            type === "SEARCH_TYPE_PLAYLIST"
+        ) {
             browserEndpoint =
                 content?.musicResponsiveListItemRenderer?.navigationEndpoint
                     ?.browseEndpoint;
@@ -217,9 +221,9 @@ export default class InnerTube {
         return {
             thumbnail,
             title,
+            artist,
             watchEndpoint,
             browserEndpoint,
-            artist,
             duration,
             plays,
             views,
@@ -227,4 +231,6 @@ export default class InnerTube {
             year,
         };
     }
+
+
 }

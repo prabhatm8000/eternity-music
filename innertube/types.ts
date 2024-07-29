@@ -20,7 +20,7 @@ export type SearchResult = {
     continuation: string;
 };
 
-export type Content = Song | Video | Artist | Album;
+export type Content = Song | Video | Artist | Album | Playlist;
 
 export type Song = {
     thumbnail: Thumbnail[];
@@ -45,7 +45,7 @@ export type Artist = {
     title: string;
     browserEndpoint: BrowserEndPoint;
     subscribers: string;
-}
+};
 
 export type Album = {
     thumbnail: Thumbnail[];
@@ -53,7 +53,14 @@ export type Album = {
     artist: ArtistBasic[];
     year: string;
     browserEndpoint: BrowserEndPoint;
-}
+};
+
+export type Playlist = {
+    thumbnail: Thumbnail[];
+    title: string;
+    artist: ArtistBasic[];
+    browserEndpoint: BrowserEndPoint;
+};
 
 export type Thumbnail = {
     url: string;

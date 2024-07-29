@@ -23,4 +23,5 @@ export const musicTwoRowItemRendererMask =
 export const playlistPanelVideoRendererMask =
     "playlistPanelVideoRenderer(title,navigationEndpoint,longBylineText,shortBylineText,thumbnail,lengthText)";
 
-export const XGoogApiKey = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8";
+export const XGoogApiKey = process.env.Inner_Youtube_Api_Key;
+
