@@ -333,6 +333,10 @@ export default class InnerTube {
             return output;
         }
 
+        if (pageType === "ALBUM") {
+            
+        }
+
         return null;
     }
 

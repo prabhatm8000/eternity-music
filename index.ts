@@ -15,6 +15,6 @@ const innertube = new InnerTube();
 //         fs.writeFileSync("./testingData/song.json", JSON.stringify(data));
 //     });
 
-innertube.browse("UCwgX_dLqGYna_7Fm8ecf4Ng", "ARTIST").then((data) => {
+innertube.browse("MPREb_KfonHvA4DE5", "ALBUM").then((data) => {
     fs.writeFileSync("./testingData/browse.json", JSON.stringify(data));
 });
