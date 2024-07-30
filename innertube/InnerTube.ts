@@ -6,13 +6,16 @@ import {
     XGoogApiKey,
 } from "./configs";
 import type {
+    Album,
     ArtistBasic,
+    ArtistPage,
     BrowserEndPoint,
     Content,
     ContinuationBody,
     SearchBody,
     SearchResult,
     SearchType,
+    Single,
     Thumbnail,
     WatchEndpoint,
 } from "./types";
@@ -100,15 +103,13 @@ export default class InnerTube {
             : jsonData.contents?.tabbedSearchResultsRenderer?.tabs[0]
                   ?.tabRenderer.content.sectionListRenderer.contents[0];
 
-        writeFileSync("./testingData/1-data.json", JSON.stringify(data));
-
         const searchResult: SearchResult = {
             contents: continuation
                 ? data?.musicShelfContinuation?.contents?.map((content) =>
-                      this.filterAndOrganizeData(content, reqBody.type)
+                      this.filterAndOrganizeSearchResult(content, reqBody.type)
                   )
                 : data?.musicShelfRenderer?.contents?.map((content) =>
-                      this.filterAndOrganizeData(content, reqBody.type)
+                      this.filterAndOrganizeSearchResult(content, reqBody.type)
                   ),
             continuation: data?.musicShelfRenderer?.continuations
                 ? data?.musicShelfRenderer?.continuations[0]
@@ -119,7 +120,7 @@ export default class InnerTube {
         return searchResult;
     }
 
-    private filterAndOrganizeData(content, type: SearchType): Content {
+    private filterAndOrganizeSearchResult(content, type: SearchType): Content {
         let thumbnail: Thumbnail[],
             title: string,
             watchEndpoint: WatchEndpoint,
@@ -232,5 +233,118 @@ export default class InnerTube {
         };
     }
 
+    async browse(
+        browseId: string,
+        pageType: "ALBUM" | "ARTIST"
+    ): Promise<ArtistPage | null> {
+        const res = await fetch(
+            `https://music.youtube.com${ApiPaths.browse}?prettyPrint=false`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Goog-Api-Key": XGoogApiKey,
 
+                    // masking the non-required fields
+                    "X-Goog-FieldMask": "contents,header",
+                    Accept: "*/*",
+                },
+                body: JSON.stringify({
+                    context: {
+                        client: {
+                            clientName: "WEB_REMIX",
+                            clientVersion: "1.20240724.00.00",
+                            hl: "en",
+                        },
+                    },
+                    browseId: browseId,
+                }),
+            }
+        );
+
+        console.log(
+            "api call: browse;",
+            "browseId:",
+            browseId,
+            "pageType:",
+            pageType,
+            "status:",
+            res.status,
+            res.statusText
+        );
+
+        const jsonData = await res.json();
+
+        writeFileSync("./testingData/1-data.json", JSON.stringify(jsonData));
+
+        if (pageType === "ARTIST") {
+            const output: ArtistPage = {
+                name: jsonData?.header?.musicImmersiveHeaderRenderer?.title
+                    ?.runs[0]?.text,
+                description:
+                    jsonData?.header?.musicImmersiveHeaderRenderer?.description
+                        ?.runs[0]?.text,
+                thumbnail:
+                    jsonData?.header?.musicImmersiveHeaderRenderer?.thumbnail
+                        ?.musicThumbnailRenderer?.thumbnail?.thumbnails,
+                shuffleEndpoint:
+                    jsonData?.header?.musicImmersiveHeaderRenderer?.playButton
+                        ?.buttonRenderer?.navigationEndpoint?.watchEndpoint,
+                radioEndpoint:
+                    jsonData?.header?.musicImmersiveHeaderRenderer
+                        ?.startRadioButton?.buttonRenderer?.navigationEndpoint
+                        ?.watchEndpoint,
+                songs: jsonData?.contents?.singleColumnBrowseResultsRenderer?.tabs[0]?.tabRenderer?.content?.sectionListRenderer?.contents[0]?.musicShelfRenderer?.contents.map(
+                    (content) =>
+                        this.filterAndOrganizeSearchResult(
+                            content,
+                            "SEARCH_TYPE_SONG"
+                        )
+                ),
+                songsEndpoint:
+                    jsonData?.contents?.singleColumnBrowseResultsRenderer
+                        ?.tabs[0]?.tabRenderer?.content?.sectionListRenderer
+                        ?.contents[0]?.musicShelfRenderer?.bottomEndpoint
+                        ?.browseEndpoint,
+                albums: jsonData?.contents?.singleColumnBrowseResultsRenderer?.tabs[0]?.tabRenderer?.content?.sectionListRenderer?.contents[1]?.musicCarouselShelfRenderer?.contents.map(
+                    (content) => this.filterAndOrganizeSinglesAndAlbums(content)
+                ),
+                albumsEndpoint:
+                    jsonData?.contents?.singleColumnBrowseResultsRenderer
+                        ?.tabs[0]?.tabRenderer?.content?.sectionListRenderer
+                        ?.contents[1]?.musicCarouselShelfRenderer?.header
+                        ?.musicCarouselShelfBasicHeaderRenderer
+                        ?.moreContentButton?.buttonRenderer?.navigationEndpoint
+                        ?.browseEndpoint,
+                singles:
+                    jsonData?.contents?.singleColumnBrowseResultsRenderer?.tabs[0]?.tabRenderer?.content?.sectionListRenderer?.contents[2]?.musicCarouselShelfRenderer?.contents.map(
+                        (content) =>
+                            this.filterAndOrganizeSinglesAndAlbums(content)
+                    ),
+                singlesEndpoint:
+                    jsonData?.contents?.singleColumnBrowseResultsRenderer
+                        ?.tabs[0]?.tabRenderer?.content?.sectionListRenderer
+                        ?.contents[2]?.musicCarouselShelfRenderer?.header
+                        ?.musicCarouselShelfBasicHeaderRenderer
+                        ?.moreContentButton?.buttonRenderer?.navigationEndpoint
+                        ?.browseEndpoint,
+            };
+
+            return output;
+        }
+
+        return null;
+    }
+
+    private filterAndOrganizeSinglesAndAlbums(content): Single | Album {
+        const data = content?.musicTwoRowItemRenderer;
+        return {
+            thumbnail:
+                data?.thumbnailRenderer?.musicThumbnailRenderer?.thumbnail
+                    ?.thumbnails,
+            title: data?.title?.runs[0]?.text,
+            year: data?.subtitle?.runs[data?.subtitle?.runs.length - 1]?.text,
+            browserEndpoint: data?.navigationEndpoint?.browseEndpoint,
+        };
+    }
 }
