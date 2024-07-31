@@ -64,10 +64,10 @@ export type Playlist = {
 
 export type Single = {
     thumbnail: Thumbnail[];
-    title:string;
-    year:string;
+    title: string;
+    year: string;
     browserEndpoint: BrowserEndPoint;
-}
+};
 
 export type Thumbnail = {
     url: string;
@@ -77,6 +77,7 @@ export type Thumbnail = {
 
 export type WatchEndpoint = {
     videoId: string;
+    playlistId: string;
     watchEndpointMusicSupportedConfigs: {
         watchEndpointMusicConfig: {
             musicVideoType: MusicVideoType;
@@ -112,6 +113,24 @@ export type ArtistPage = {
     singles: Single[];
     singlesEndpoint: BrowserEndPoint;
 };
+
+export type AlbumPage = {
+    thumbnail: Thumbnail[];
+    title: string;
+    artist: ArtistBasic[];
+    year: string;
+    description: string;
+    songs: Song[];
+    totalDuration: string;
+};
+
+export type PlaylistPage = {
+    thumbnail: Thumbnail[];
+    title: string;
+    videos: Video[];
+    totalDuration: string;
+    continuation: string;
+}
 
 type MusicVideoType = "MUSIC_VIDEO_TYPE_ATV" | "MUSIC_VIDEO_TYPE_UGC";
 type PageType =

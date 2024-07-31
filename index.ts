@@ -8,13 +8,13 @@ const innertube = new InnerTube();
 
 // innertube
 //     .search({
-//         query: "hangover",
-//         type: "SEARCH_TYPE_SONG",
+//         query: "phonk",
+//         type: "SEARCH_TYPE_PLAYLIST",
 //     })
 //     .then((data) => {
-//         fs.writeFileSync("./testingData/song.json", JSON.stringify(data));
+//         fs.writeFileSync("./testingData/playlist.json", JSON.stringify(data));
 //     });
 
-innertube.browse("MPREb_KfonHvA4DE5", "ALBUM").then((data) => {
+innertube.browse("VLPLZumdd7y9eygbF0kE1K81Wo0E7O0fj2bp", "PLAYLIST").then((data) => {
     fs.writeFileSync("./testingData/browse.json", JSON.stringify(data));
 });
