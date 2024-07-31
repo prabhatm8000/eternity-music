@@ -7,6 +7,7 @@ import {
 } from "./configs";
 import type {
     Album,
+    AlbumPage,
     ArtistBasic,
     ArtistPage,
     BrowserEndPoint,
@@ -16,9 +17,11 @@ import type {
     SearchResult,
     SearchType,
     Single,
+    Song,
     Thumbnail,
     WatchEndpoint,
 } from "./types";
+import { waitForDebugger } from "inspector";
 
 export default class InnerTube {
     constructor() {}
@@ -235,8 +238,8 @@ export default class InnerTube {
 
     async browse(
         browseId: string,
-        pageType: "ALBUM" | "ARTIST"
-    ): Promise<ArtistPage | null> {
+        pageType: "ALBUM" | "ARTIST" | "PLAYLIST"
+    ): Promise<ArtistPage | AlbumPage | null> {
         const res = await fetch(
             `https://music.youtube.com${ApiPaths.browse}?prettyPrint=false`,
             {
@@ -277,8 +280,10 @@ export default class InnerTube {
 
         writeFileSync("./testingData/1-data.json", JSON.stringify(jsonData));
 
+        let output: ArtistPage | AlbumPage | null = null;
+
         if (pageType === "ARTIST") {
-            const output: ArtistPage = {
+            output = {
                 name: jsonData?.header?.musicImmersiveHeaderRenderer?.title
                     ?.runs[0]?.text,
                 description:
@@ -329,11 +334,69 @@ export default class InnerTube {
                         ?.moreContentButton?.buttonRenderer?.navigationEndpoint
                         ?.browseEndpoint,
             };
+        } else if (pageType === "ALBUM") {
+            const album =
+                jsonData?.contents?.twoColumnBrowseResultsRenderer?.tabs[0]
+                    ?.tabRenderer?.content?.sectionListRenderer?.contents[0]
+                    ?.musicResponsiveHeaderRenderer;
 
-            return output;
+            const thumbnail =
+                jsonData?.contents?.twoColumnBrowseResultsRenderer?.tabs[0]
+                    ?.tabRenderer?.content?.sectionListRenderer?.contents[0]
+                    ?.musicResponsiveHeaderRenderer?.thumbnail
+                    ?.musicThumbnailRenderer?.thumbnail?.thumbnails;
+
+            const artist = [
+                {
+                    name: album?.straplineTextOne?.runs[0].text,
+                    browserEndPoint:
+                        album?.straplineTextOne?.runs[0]?.navigationEndpoint
+                            ?.browseEndpoint,
+                },
+            ];
+
+            output = {
+                thumbnail,
+                title: album?.title?.runs[0]?.text,
+                artist,
+                year: album?.subtitle?.runs[2]?.text,
+                description:
+                    album?.description?.musicDescriptionShelfRenderer
+                        ?.description?.runs[0]?.text,
+                songs: jsonData?.contents?.twoColumnBrowseResultsRenderer?.secondaryContents?.sectionListRenderer?.contents[0]?.musicShelfRenderer?.contents.map(
+                    (content): Song => {
+                        return {
+                            thumbnail,
+                            title: content?.musicResponsiveListItemRenderer
+                                ?.flexColumns[0]
+                                ?.musicResponsiveListItemFlexColumnRenderer
+                                ?.text?.runs[0]?.text,
+                            watchEndpoint:
+                                content?.musicResponsiveListItemRenderer
+                                    ?.flexColumns[0]
+                                    ?.musicResponsiveListItemFlexColumnRenderer
+                                    ?.text?.runs[0]?.navigationEndpoint
+                                    ?.watchEndpoint,
+                            artist,
+                            duration:
+                                content?.musicResponsiveListItemRenderer
+                                    ?.fixedColumns[0]
+                                    ?.musicResponsiveListItemFixedColumnRenderer
+                                    ?.text?.runs[0]?.text,
+                            plays: content?.musicResponsiveListItemRenderer
+                                ?.flexColumns[2]
+                                ?.musicResponsiveListItemFlexColumnRenderer
+                                ?.text?.runs[0]?.text,
+                        };
+                    }
+                ),
+                totalDuration: album?.secondSubtitle?.runs[2]?.text,
+            };
+        } else if (pageType === "PLAYLIST") {
+            
         }
 
-        return null;
+        return output;
     }
 
     private filterAndOrganizeSinglesAndAlbums(content): Single | Album {
