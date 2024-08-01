@@ -21,7 +21,6 @@ import type {
     Thumbnail,
     WatchEndpoint,
 } from "./types";
-import { waitForDebugger } from "inspector";
 
 export default class InnerTube {
     constructor() {}
@@ -101,10 +100,12 @@ export default class InnerTube {
 
         const jsonData = await res.json();
 
+        writeFileSync("./testingData/1-data.json", JSON.stringify(jsonData));
+
         const data = continuation
             ? jsonData.continuationContents
             : jsonData.contents?.tabbedSearchResultsRenderer?.tabs[0]
-                  ?.tabRenderer.content.sectionListRenderer.contents[0];
+                  ?.tabRenderer.content.sectionListRenderer.contents.filter(content => content?.musicShelfRenderer)[0];
 
         const searchResult: SearchResult = {
             contents: continuation
@@ -234,6 +235,50 @@ export default class InnerTube {
             subscribers,
             year,
         };
+    }
+
+    async searchSuggestions(input: string): Promise<string[]> {
+        const res = await fetch(
+            `https://music.youtube.com${ApiPaths.searchSuggestions}?prettyPrint=false`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json",
+                    "X-Goog-Api-Key": XGoogApiKey,
+                    Accept: "*/*",
+                },
+                body: JSON.stringify({
+                    context: {
+                        client: {
+                            clientName: "WEB_REMIX",
+                            clientVersion: "1.20240724.00.00",
+                            hl: "en",
+                        },
+                    },
+                    input: input,
+                }),
+            }
+        );
+
+        console.log(
+            "api call: searchSuggestions;",
+            "input:",
+            input,
+            "status:",
+            res.status,
+            res.statusText
+        );
+
+        const jsonData = await res.json();
+
+        const searchSuggestions =
+            jsonData?.contents[0]?.searchSuggestionsSectionRenderer?.contents?.map(
+                (content) =>
+                    content?.searchSuggestionRenderer?.navigationEndpoint
+                        ?.searchEndpoint?.query
+            );
+
+        return searchSuggestions;
     }
 
     async browse(
@@ -393,7 +438,6 @@ export default class InnerTube {
                 totalDuration: album?.secondSubtitle?.runs[2]?.text,
             };
         } else if (pageType === "PLAYLIST") {
-            
         }
 
         return output;
