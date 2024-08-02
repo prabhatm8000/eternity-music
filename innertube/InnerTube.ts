@@ -104,8 +104,9 @@ export default class InnerTube {
 
         const data = continuation
             ? jsonData.continuationContents
-            : jsonData.contents?.tabbedSearchResultsRenderer?.tabs[0]
-                  ?.tabRenderer.content.sectionListRenderer.contents.filter(content => content?.musicShelfRenderer)[0];
+            : jsonData.contents?.tabbedSearchResultsRenderer?.tabs[0]?.tabRenderer.content.sectionListRenderer.contents.filter(
+                  (content) => content?.musicShelfRenderer
+              )[0];
 
         const searchResult: SearchResult = {
             contents: continuation
@@ -453,5 +454,39 @@ export default class InnerTube {
             year: data?.subtitle?.runs[data?.subtitle?.runs.length - 1]?.text,
             browserEndpoint: data?.navigationEndpoint?.browseEndpoint,
         };
+    }
+
+    async player(videoId: string) {
+        const res = await fetch(
+            `https://music.youtube.com/youtubei/v1/player?prettyPrint=false`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json",
+                    "X-Goog-Api-Key": XGoogApiKey,
+                    "X-Goog-FieldMask":
+                        "playabilityStatus.status,playerConfig.audioConfig,streamingData.adaptiveFormats,videoDetails.videoId",
+                    Accept: "*/*",
+                },
+                body: JSON.stringify({
+                    context: {
+                        client: {
+                            hl: "en",
+                            clientName: "WEB_REMIX",
+                            clientVersion: "1.20240724.00.00",
+                            clientScreen: "WATCH",
+                        },
+                        thirdParty: {
+                            embedUrl: `https://www.youtube.com//watch?v=${videoId}`,
+                        },
+                    },
+                    videoId: videoId,
+                    racyCheckOk: true,
+                    contentCheckOk: true,
+                }),
+            }
+        );
+        const jsonData = await res.json();
+        return jsonData;
     }
 }

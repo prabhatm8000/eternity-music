@@ -4,10 +4,7 @@ import InnerTube from "./innertube/InnerTube";
 const innerTube = new InnerTube();
 
 innerTube
-    .search({
-        query: "espressso",
-        type: "SEARCH_TYPE_SONG",
-    })
+    .player("ffqliB42Nh4")
     .then((data) => {
-        writeFileSync("song.json", JSON.stringify(data));
+        writeFileSync("./testingData/1-data.json", JSON.stringify(data));
     });
