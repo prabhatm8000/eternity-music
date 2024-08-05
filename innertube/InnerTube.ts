@@ -1,6 +1,7 @@
 import { writeFileSync } from "fs";
 import {
     ApiPaths,
+    MAX_RETRY,
     musicResponsiveListItemRendererMask,
     searchFilterParams,
     XGoogApiKey,
@@ -465,13 +466,14 @@ export default class InnerTube {
                     "Content-type": "application/json",
                     "X-Goog-Api-Key": XGoogApiKey,
                     "X-Goog-FieldMask":
-                        "playabilityStatus.status,playerConfig.audioConfig,streamingData.adaptiveFormats,videoDetails.videoId",
+                        "playabilityStatus.status,playerConfig.audioConfig,streamingData.adaptiveFormats,streamingData.formats,videoDetails.videoId",
                     Accept: "*/*",
                 },
                 body: JSON.stringify({
                     context: {
                         client: {
                             hl: "en",
+                            gl: "IN",
                             clientName: "WEB_REMIX",
                             clientVersion: "1.20240724.00.00",
                             clientScreen: "WATCH",
@@ -487,6 +489,30 @@ export default class InnerTube {
             }
         );
         const jsonData = await res.json();
+
         return jsonData;
+    }
+
+    async audioStreams(videoId: string) {
+        let jsonData;
+
+        for (let i = 0; i < MAX_RETRY; i++) {
+            const res = await fetch(
+                `https://pipedapi.kavin.rocks/streams/${videoId}`
+            );
+
+            jsonData = await res.json();
+
+            if ("error" in jsonData) {
+                continue;
+            } else {
+                break;
+            }
+        }
+
+        if ("error" in jsonData) {
+            throw new Error(jsonData.error);
+        }
+        return jsonData.audioStreams;
     }
 }
