@@ -1,6 +1,7 @@
 import { writeFileSync } from "fs";
 import {
     ApiPaths,
+    MAX_RETRY,
     musicResponsiveListItemRendererMask,
     searchFilterParams,
     XGoogApiKey,
@@ -21,7 +22,6 @@ import type {
     Thumbnail,
     WatchEndpoint,
 } from "./types";
-import { waitForDebugger } from "inspector";
 
 export default class InnerTube {
     constructor() {}
@@ -101,10 +101,13 @@ export default class InnerTube {
 
         const jsonData = await res.json();
 
+        writeFileSync("./testingData/1-data.json", JSON.stringify(jsonData));
+
         const data = continuation
             ? jsonData.continuationContents
-            : jsonData.contents?.tabbedSearchResultsRenderer?.tabs[0]
-                  ?.tabRenderer.content.sectionListRenderer.contents[0];
+            : jsonData.contents?.tabbedSearchResultsRenderer?.tabs[0]?.tabRenderer.content.sectionListRenderer.contents.filter(
+                  (content) => content?.musicShelfRenderer
+              )[0];
 
         const searchResult: SearchResult = {
             contents: continuation
@@ -234,6 +237,50 @@ export default class InnerTube {
             subscribers,
             year,
         };
+    }
+
+    async searchSuggestions(input: string): Promise<string[]> {
+        const res = await fetch(
+            `https://music.youtube.com${ApiPaths.searchSuggestions}?prettyPrint=false`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json",
+                    "X-Goog-Api-Key": XGoogApiKey,
+                    Accept: "*/*",
+                },
+                body: JSON.stringify({
+                    context: {
+                        client: {
+                            clientName: "WEB_REMIX",
+                            clientVersion: "1.20240724.00.00",
+                            hl: "en",
+                        },
+                    },
+                    input: input,
+                }),
+            }
+        );
+
+        console.log(
+            "api call: searchSuggestions;",
+            "input:",
+            input,
+            "status:",
+            res.status,
+            res.statusText
+        );
+
+        const jsonData = await res.json();
+
+        const searchSuggestions =
+            jsonData?.contents[0]?.searchSuggestionsSectionRenderer?.contents?.map(
+                (content) =>
+                    content?.searchSuggestionRenderer?.navigationEndpoint
+                        ?.searchEndpoint?.query
+            );
+
+        return searchSuggestions;
     }
 
     async browse(
@@ -393,7 +440,6 @@ export default class InnerTube {
                 totalDuration: album?.secondSubtitle?.runs[2]?.text,
             };
         } else if (pageType === "PLAYLIST") {
-            
         }
 
         return output;
@@ -409,5 +455,64 @@ export default class InnerTube {
             year: data?.subtitle?.runs[data?.subtitle?.runs.length - 1]?.text,
             browserEndpoint: data?.navigationEndpoint?.browseEndpoint,
         };
+    }
+
+    async player(videoId: string) {
+        const res = await fetch(
+            `https://music.youtube.com/youtubei/v1/player?prettyPrint=false`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json",
+                    "X-Goog-Api-Key": XGoogApiKey,
+                    "X-Goog-FieldMask":
+                        "playabilityStatus.status,playerConfig.audioConfig,streamingData.adaptiveFormats,streamingData.formats,videoDetails.videoId",
+                    Accept: "*/*",
+                },
+                body: JSON.stringify({
+                    context: {
+                        client: {
+                            hl: "en",
+                            gl: "IN",
+                            clientName: "WEB_REMIX",
+                            clientVersion: "1.20240724.00.00",
+                            clientScreen: "WATCH",
+                        },
+                        thirdParty: {
+                            embedUrl: `https://www.youtube.com//watch?v=${videoId}`,
+                        },
+                    },
+                    videoId: videoId,
+                    racyCheckOk: true,
+                    contentCheckOk: true,
+                }),
+            }
+        );
+        const jsonData = await res.json();
+
+        return jsonData;
+    }
+
+    async audioStreams(videoId: string) {
+        let jsonData;
+
+        for (let i = 0; i < MAX_RETRY; i++) {
+            const res = await fetch(
+                `https://pipedapi.kavin.rocks/streams/${videoId}`
+            );
+
+            jsonData = await res.json();
+
+            if ("error" in jsonData) {
+                continue;
+            } else {
+                break;
+            }
+        }
+
+        if ("error" in jsonData) {
+            throw new Error(jsonData.error);
+        }
+        return jsonData.audioStreams;
     }
 }

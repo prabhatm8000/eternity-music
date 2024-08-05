@@ -25,3 +25,4 @@ export const playlistPanelVideoRendererMask =
 
 export const XGoogApiKey = process.env.Inner_Youtube_Api_Key;
 
+export const MAX_RETRY = 3;
