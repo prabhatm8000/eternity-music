@@ -11,6 +11,7 @@ import type {
     AlbumPage,
     ArtistBasic,
     ArtistPage,
+    AudioStream,
     BrowserEndPoint,
     Content,
     ContinuationBody,
@@ -20,6 +21,7 @@ import type {
     Single,
     Song,
     Thumbnail,
+    VideoDetailsFromPlayer,
     WatchEndpoint,
 } from "./types";
 
@@ -457,7 +459,7 @@ export default class InnerTube {
         };
     }
 
-    async player(videoId: string) {
+    async player(videoId: string): Promise<VideoDetailsFromPlayer> {
         const res = await fetch(
             `https://music.youtube.com/youtubei/v1/player?prettyPrint=false`,
             {
@@ -466,7 +468,7 @@ export default class InnerTube {
                     "Content-type": "application/json",
                     "X-Goog-Api-Key": XGoogApiKey,
                     "X-Goog-FieldMask":
-                        "playabilityStatus.status,playerConfig.audioConfig,streamingData.adaptiveFormats,streamingData.formats,videoDetails.videoId",
+                        "playabilityStatus.status,playerConfig.audioConfig,videoDetails",
                     Accept: "*/*",
                 },
                 body: JSON.stringify({
@@ -490,18 +492,45 @@ export default class InnerTube {
         );
         const jsonData = await res.json();
 
-        return jsonData;
+        const videoDetails: VideoDetailsFromPlayer = {
+            playabilityStatus: jsonData.playabilityStatus,
+            videoDetails: {
+                videoId: jsonData.videoDetails.videoId,
+                title: jsonData.videoDetails.title,
+                lengthSeconds: jsonData.videoDetails.lengthSeconds,
+                channelId: jsonData.videoDetails.channelId,
+                thumbnail: jsonData.videoDetails.thumbnail.thumbnails,
+                viewCount: jsonData.videoDetails.viewCount,
+                author: jsonData.videoDetails.author,
+            },
+            playerConfig: jsonData.playerConfig,
+        };
+
+        return videoDetails;
     }
 
-    async audioStreams(videoId: string) {
+    async audioStreams(videoId: string): Promise<AudioStream[]> {
         let jsonData;
+
+        function sleep(ms: number) {
+            return new Promise((resolve) => setTimeout(resolve, ms));
+        }
 
         for (let i = 0; i < MAX_RETRY; i++) {
             const res = await fetch(
-                `https://pipedapi.kavin.rocks/streams/${videoId}`
+                `https://pipedapi.kavin.rocks/streams/${videoId}`,
+                {
+                    headers: {
+                        Accept: "*/*",
+                        "User-Agent":
+                            "Thunder Client (https://www.thunderclient.com)",
+                        "Content-Type": "application/json",
+                    },
+                }
             );
 
             jsonData = await res.json();
+            await sleep(200);
 
             if ("error" in jsonData) {
                 continue;
@@ -513,6 +542,7 @@ export default class InnerTube {
         if ("error" in jsonData) {
             throw new Error(jsonData.error);
         }
+
         return jsonData.audioStreams;
     }
 }

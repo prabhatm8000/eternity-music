@@ -130,7 +130,45 @@ export type PlaylistPage = {
     videos: Video[];
     totalDuration: string;
     continuation: string;
-}
+};
+
+export type VideoDetailsFromPlayer = {
+    playabilityStatus: {
+        status: string;
+    };
+    videoDetails: {
+        videoId: string;
+        title: string;
+        lengthSeconds: number;
+        channelId: string;
+        thumbnail: {
+            thumbnails: Thumbnail[];
+        };
+        viewCount: number;
+        author: string;
+    };
+    playerConfig: {
+        audioConfig: {
+            loudnessDb: number;
+            perceptualLoudnessDb: number;
+            enablePerFormatLoudness: boolean;
+        };
+    };
+};
+
+export type AudioStream = {
+    url: string;
+    format: string;
+    quality: string;
+    mimeType: string;
+    itag: number;
+    bitrate: number;
+    initStart: number;
+    initEnd: number;
+    indexStart: number;
+    indexEnd: number;
+    contentLength: number;
+};
 
 type MusicVideoType = "MUSIC_VIDEO_TYPE_ATV" | "MUSIC_VIDEO_TYPE_UGC";
 type PageType =
