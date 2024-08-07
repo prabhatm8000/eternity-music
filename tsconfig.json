@@ -1,4 +1,9 @@
 {
+<<<<<<< HEAD
+  "files": [],
+  "references": [{ "path": "./tsconfig.node.json" }, { "path": "./tsconfig.web.json" }]
+}
+=======
     "compilerOptions": {
         "target": "ESNext",
         "module": "NodeNext",
@@ -8,3 +13,4 @@
         "outDir": "dist",
     }
 }
+>>>>>>> 1f5ac9cf755a0df3f0b59bc8eccc2224556cf797
