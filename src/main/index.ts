@@ -14,7 +14,9 @@ function createWindow(): void {
             preload: join(__dirname, '../preload/index.js'),
             sandbox: false,
             contextIsolation: true
-        }
+        },
+        vibrancy: 'fullscreen-ui', // on MacOS
+        backgroundMaterial: 'tabbed' // on Windows 11
     })
 
     mainWindow.on('ready-to-show', () => {
@@ -35,22 +37,17 @@ function createWindow(): void {
     }
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
     // Set app user model id for windows
     electronApp.setAppUserModelId('com.electron')
 
-    // Default open or close DevTools by F12 in development
-    // and ignore CommandOrControl + R in production.
-    // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
     app.on('browser-window-created', (_, window) => {
         optimizer.watchWindowShortcuts(window)
     })
 
     // IPC test
-    ipcMain.on('ping', () => console.log('pong'))
+    ipcMain.on('ping', (event, msg) => console.log('pong', msg))
 
     createWindow()
 
@@ -69,9 +66,3 @@ app.on('window-all-closed', () => {
         app.quit()
     }
 })
-
-// In this file you can include the rest of your app"s specific main process
-// code. You can also put them in separate files and require them here.
-
-// const innerTube = new InnerTube()
-// innerTube.search({ type: 'SEARCH_TYPE_SONG', query: "don't worry my love" }).then(console.log)
