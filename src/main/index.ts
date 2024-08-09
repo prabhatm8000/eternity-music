@@ -1,13 +1,17 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron';
 import { join } from 'path';
 import { electronApp, optimizer, is } from '@electron-toolkit/utils';
-import { browseHandler, searchHandler, searchSuggestionHandler } from './controllers/innerTubeController.js';
+import {
+    browseHandler,
+    searchHandler,
+    searchSuggestionHandler
+} from './controllers/innerTubeController.js';
 
 function createWindow(): void {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
-        width: 900,
-        height: 670,
+        minWidth: 500,
+        minHeight: 300,
         show: false,
         autoHideMenuBar: true,
         ...(process.platform === 'linux' ? { icon: '../../resources/icon.png' } : {}),
@@ -17,7 +21,10 @@ function createWindow(): void {
             preload: join(__dirname, '../preload/index.js')
         },
         vibrancy: 'fullscreen-ui', // on MacOS
-        backgroundMaterial: 'tabbed' // on Windows 11
+        backgroundMaterial: 'tabbed', // on Windows 11
+        titleBarStyle: 'customButtonsOnHover',
+        minimizable: true,
+        maximizable: true,
     });
 
     mainWindow.on('ready-to-show', () => {
