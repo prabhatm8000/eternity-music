@@ -4,53 +4,56 @@ import {
     musicResponsiveListItemRendererMask,
     searchFilterParams,
     XGoogApiKey
-} from './configs'
+} from './configs';
 import type {
     Album,
     AlbumPage,
     ArtistBasic,
     ArtistPage,
     AudioStream,
+    BrowseBody,
     BrowserEndPoint,
     Content,
     ContinuationBody,
+    PlaylistPage,
     SearchBody,
     SearchResult,
     SearchType,
     Single,
     Song,
     Thumbnail,
+    Video,
     VideoDetailsFromPlayer,
     WatchEndpoint
-} from './types'
+} from './types';
 
 export default class InnerTube {
     constructor() {}
 
     async search(reqBody: SearchBody | ContinuationBody): Promise<SearchResult> {
-        let params: string | null
+        let params: string | null;
 
         switch (reqBody.type) {
             case 'SEARCH_TYPE_SONG':
-                params = searchFilterParams.Song
-                break
+                params = searchFilterParams.Song;
+                break;
             case 'SEARCH_TYPE_VIDEO':
-                params = searchFilterParams.Video
-                break
+                params = searchFilterParams.Video;
+                break;
             case 'SEARCH_TYPE_ARTIST':
-                params = searchFilterParams.Artist
-                break
+                params = searchFilterParams.Artist;
+                break;
             case 'SEARCH_TYPE_PLAYLIST':
-                params = searchFilterParams.CommunityPlaylist
-                break
+                params = searchFilterParams.CommunityPlaylist;
+                break;
             case 'SEARCH_TYPE_ALBUM':
-                params = searchFilterParams.Album
-                break
+                params = searchFilterParams.Album;
+                break;
             default:
-                params = null
+                params = null;
         }
 
-        const continuation = 'continuation' in reqBody ? reqBody.continuation : null
+        const continuation = 'continuation' in reqBody ? reqBody.continuation : null;
 
         const res = await fetch(
             `https://music.youtube.com${
@@ -82,7 +85,7 @@ export default class InnerTube {
                     params
                 })
             }
-        )
+        );
 
         console.log(
             'api call: search;',
@@ -91,15 +94,15 @@ export default class InnerTube {
             'status:',
             res.status,
             res.statusText
-        )
+        );
 
-        const jsonData = await res.json()
+        const jsonData = await res.json();
 
         const data = continuation
             ? jsonData.continuationContents
             : jsonData.contents?.tabbedSearchResultsRenderer?.tabs[0]?.tabRenderer.content.sectionListRenderer.contents.filter(
                   (content) => content?.musicShelfRenderer
-              )[0]
+              )[0];
 
         const searchResult: SearchResult = {
             contents: continuation
@@ -112,9 +115,9 @@ export default class InnerTube {
             continuation: data?.musicShelfRenderer?.continuations
                 ? data?.musicShelfRenderer?.continuations[0]?.nextContinuationData?.continuation
                 : []
-        }
+        };
 
-        return searchResult
+        return searchResult;
     }
 
     private filterAndOrganizeSearchResult(content, type: SearchType): Content {
@@ -128,19 +131,19 @@ export default class InnerTube {
             plays!: string,
             views!: string,
             subscribers!: string,
-            year!: string
+            year!: string;
 
         thumbnail =
             content?.musicResponsiveListItemRenderer?.thumbnail?.musicThumbnailRenderer?.thumbnail
-                ?.thumbnails
+                ?.thumbnails;
 
         title =
             content?.musicResponsiveListItemRenderer?.flexColumns[0]
-                ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs[0]?.text
+                ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs[0]?.text;
 
         infoData =
             content?.musicResponsiveListItemRenderer?.flexColumns[1]
-                ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs
+                ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs;
 
         if (
             type === 'SEARCH_TYPE_SONG' ||
@@ -149,16 +152,16 @@ export default class InnerTube {
         ) {
             for (let i = 0; i < infoData.length; i++) {
                 if (infoData[i]?.text.trim() === ',' || infoData[i]?.text.trim() === '&') {
-                    continue
+                    continue;
                 }
 
                 if (infoData[i]?.text.trim() !== '•') {
                     artist.push({
                         name: infoData[i]?.text,
                         browserEndPoint: infoData[i]?.navigationEndpoint?.browseEndpoint
-                    })
+                    });
                 } else {
-                    break
+                    break;
                 }
             }
         }
@@ -167,9 +170,9 @@ export default class InnerTube {
             watchEndpoint =
                 content?.musicResponsiveListItemRenderer?.flexColumns[0]
                     ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs[0]?.navigationEndpoint
-                    ?.watchEndpoint
+                    ?.watchEndpoint;
 
-            duration = infoData[infoData.length - 1]?.text
+            duration = infoData[infoData.length - 1]?.text;
         }
 
         if (
@@ -178,30 +181,30 @@ export default class InnerTube {
             type === 'SEARCH_TYPE_PLAYLIST'
         ) {
             browserEndpoint =
-                content?.musicResponsiveListItemRenderer?.navigationEndpoint?.browseEndpoint
+                content?.musicResponsiveListItemRenderer?.navigationEndpoint?.browseEndpoint;
         }
 
         if (type === 'SEARCH_TYPE_SONG') {
             plays =
                 content?.musicResponsiveListItemRenderer?.flexColumns[2]
-                    ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs[0]?.text
+                    ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs[0]?.text;
         }
 
         if (type === 'SEARCH_TYPE_VIDEO') {
-            views = infoData[2]?.text
+            views = infoData[2]?.text;
         }
 
         if (type === 'SEARCH_TYPE_ARTIST') {
-            subscribers = infoData[2]?.text
+            subscribers = infoData[2]?.text;
         }
 
         if (type === 'SEARCH_TYPE_ALBUM') {
             artist.push({
                 name: infoData[2].text,
                 browserEndPoint: infoData[2]?.navigationEndpoint?.browseEndpoint
-            })
+            });
 
-            year = infoData[4]?.text
+            year = infoData[4]?.text;
         }
 
         return {
@@ -215,7 +218,7 @@ export default class InnerTube {
             views,
             subscribers,
             year
-        }
+        };
     }
 
     async searchSuggestions(input: string): Promise<string[]> {
@@ -239,7 +242,7 @@ export default class InnerTube {
                     input: input
                 })
             }
-        )
+        );
 
         console.log(
             'api call: searchSuggestions;',
@@ -248,23 +251,22 @@ export default class InnerTube {
             'status:',
             res.status,
             res.statusText
-        )
+        );
 
-        const jsonData = await res.json()
+        const jsonData = await res.json();
 
         const searchSuggestions =
             jsonData?.contents[0]?.searchSuggestionsSectionRenderer?.contents?.map(
                 (content) =>
                     content?.searchSuggestionRenderer?.navigationEndpoint?.searchEndpoint?.query
-            )
+            );
 
-        return searchSuggestions
+        return searchSuggestions;
     }
 
     async browse(
-        browseId: string,
-        pageType: 'ALBUM' | 'ARTIST' | 'PLAYLIST'
-    ): Promise<ArtistPage | AlbumPage | null> {
+        browseBody: BrowseBody
+    ): Promise<ArtistPage | AlbumPage | PlaylistPage | null> {
         const res = await fetch(`https://music.youtube.com${ApiPaths.browse}?prettyPrint=false`, {
             method: 'POST',
             headers: {
@@ -283,27 +285,28 @@ export default class InnerTube {
                         hl: 'en'
                     }
                 },
-                browseId: browseId
+                browseId: browseBody.browseId
             })
-        })
+        });
 
         console.log(
             'api call: browse;',
             'browseId:',
-            browseId,
+            browseBody.browseId,
             'pageType:',
-            pageType,
+            browseBody.pageType,
             'status:',
             res.status,
             res.statusText
-        )
+        );
 
-        const jsonData = await res.json()
+        const jsonData = await res.json();
 
-        let output: ArtistPage | AlbumPage | null = null
+        let output: ArtistPage | AlbumPage | PlaylistPage | null = null;
 
-        if (pageType === 'ARTIST') {
+        if (browseBody.pageType === 'ARTIST') {
             output = {
+                browseId: browseBody.browseId,
                 name: jsonData?.header?.musicImmersiveHeaderRenderer?.title?.runs[0]?.text,
                 description:
                     jsonData?.header?.musicImmersiveHeaderRenderer?.description?.runs[0]?.text,
@@ -340,16 +343,16 @@ export default class InnerTube {
                         ?.content?.sectionListRenderer?.contents[2]?.musicCarouselShelfRenderer
                         ?.header?.musicCarouselShelfBasicHeaderRenderer?.moreContentButton
                         ?.buttonRenderer?.navigationEndpoint?.browseEndpoint
-            }
-        } else if (pageType === 'ALBUM') {
+            };
+        } else if (browseBody.pageType === 'ALBUM') {
             const album =
                 jsonData?.contents?.twoColumnBrowseResultsRenderer?.tabs[0]?.tabRenderer?.content
-                    ?.sectionListRenderer?.contents[0]?.musicResponsiveHeaderRenderer
+                    ?.sectionListRenderer?.contents[0]?.musicResponsiveHeaderRenderer;
 
             const thumbnail =
                 jsonData?.contents?.twoColumnBrowseResultsRenderer?.tabs[0]?.tabRenderer?.content
                     ?.sectionListRenderer?.contents[0]?.musicResponsiveHeaderRenderer?.thumbnail
-                    ?.musicThumbnailRenderer?.thumbnail?.thumbnails
+                    ?.musicThumbnailRenderer?.thumbnail?.thumbnails;
 
             const artist = [
                 {
@@ -357,9 +360,10 @@ export default class InnerTube {
                     browserEndPoint:
                         album?.straplineTextOne?.runs[0]?.navigationEndpoint?.browseEndpoint
                 }
-            ]
+            ];
 
             output = {
+                browseId: browseBody.browseId,
                 thumbnail,
                 title: album?.title?.runs[0]?.text,
                 artist,
@@ -383,25 +387,88 @@ export default class InnerTube {
                                     ?.text,
                             plays: content?.musicResponsiveListItemRenderer?.flexColumns[2]
                                 ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs[0]?.text
-                        }
+                        };
                     }
                 ),
                 totalDuration: album?.secondSubtitle?.runs[2]?.text
-            }
-        } else if (pageType === 'PLAYLIST') {
+            };
+        } else if (browseBody.pageType === 'PLAYLIST') {
+            const musicResponsiveHeaderRenderer =
+                jsonData?.contents?.twoColumnBrowseResultsRenderer?.tabs[0]?.tabRenderer?.content
+                    ?.sectionListRenderer?.contents[0]?.musicResponsiveHeaderRenderer;
+
+            const sectionListRenderer =
+                jsonData?.contents?.twoColumnBrowseResultsRenderer?.secondaryContents
+                    ?.sectionListRenderer;
+
+            output = {
+                browseId: browseBody.browseId,
+                thumbnail:
+                    musicResponsiveHeaderRenderer?.thumbnail?.musicThumbnailRenderer?.thumbnail
+                        ?.thumbnails,
+                title: musicResponsiveHeaderRenderer?.title?.runs[0]?.text,
+                videos: sectionListRenderer?.contents[0]?.musicPlaylistShelfRenderer?.contents.map(
+                    (content): Video => {
+                        return {
+                            thumbnail:
+                                content?.musicResponsiveListItemRenderer?.thumbnail
+                                    ?.musicThumbnailRenderer?.thumbnail?.thumbnails,
+                            title: content?.musicResponsiveListItemRenderer?.flexColumns[0]
+                                ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs[0]?.text,
+                            watchEndpoint:
+                                content?.musicResponsiveListItemRenderer?.flexColumns[0]
+                                    ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs[0]
+                                    ?.navigationEndpoint?.watchEndpoint,
+                            artist: [
+                                {
+                                    name: content?.musicResponsiveListItemRenderer?.flexColumns[1]
+                                        ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs[0]
+                                        ?.text,
+                                    browserEndPoint:
+                                        content?.musicResponsiveListItemRenderer?.flexColumns[1]
+                                            ?.musicResponsiveListItemFlexColumnRenderer?.text
+                                            ?.runs[0]?.navigationEndpoint?.browseEndpoint
+                                }
+                            ],
+                            duration:
+                                content?.musicResponsiveListItemRenderer?.fixedColumns[0]
+                                    ?.musicResponsiveListItemFixedColumnRenderer?.text?.runs[0]
+                                    ?.text,
+                            views: '-1'
+                        };
+                    }
+                ),
+                artist: [
+                    {
+                        name: musicResponsiveHeaderRenderer?.straplineTextOne?.runs[0]?.text,
+                        browserEndPoint:
+                            musicResponsiveHeaderRenderer?.straplineTextOne?.runs[0]
+                                ?.navigationEndpoint?.browseEndpoint
+                    }
+                ],
+                totalTracks: 0,
+                totalDuration:
+                    musicResponsiveHeaderRenderer?.secondSubtitle?.runs[
+                        musicResponsiveHeaderRenderer?.secondSubtitle?.runs?.length - 1
+                    ]?.text,
+                continuation:
+                    sectionListRenderer?.continuations[0]?.nextContinuationData?.continuation
+            };
+
+            output.totalTracks = output.videos.length;
         }
 
-        return output
+        return output;
     }
 
     private filterAndOrganizeSinglesAndAlbums(content): Single | Album {
-        const data = content?.musicTwoRowItemRenderer
+        const data = content?.musicTwoRowItemRenderer;
         return {
             thumbnail: data?.thumbnailRenderer?.musicThumbnailRenderer?.thumbnail?.thumbnails,
             title: data?.title?.runs[0]?.text,
             year: data?.subtitle?.runs[data?.subtitle?.runs.length - 1]?.text,
             browserEndpoint: data?.navigationEndpoint?.browseEndpoint
-        }
+        };
     }
 
     async player(videoId: string): Promise<VideoDetailsFromPlayer> {
@@ -431,8 +498,8 @@ export default class InnerTube {
                 racyCheckOk: true,
                 contentCheckOk: true
             })
-        })
-        const jsonData = await res.json()
+        });
+        const jsonData = await res.json();
 
         const videoDetails: VideoDetailsFromPlayer = {
             playabilityStatus: jsonData.playabilityStatus,
@@ -446,16 +513,16 @@ export default class InnerTube {
                 author: jsonData.videoDetails.author
             },
             playerConfig: jsonData.playerConfig
-        }
+        };
 
-        return videoDetails
+        return videoDetails;
     }
 
     async audioStreams(videoId: string): Promise<AudioStream[]> {
-        let jsonData
+        let jsonData;
 
         function sleep(ms: number) {
-            return new Promise((resolve) => setTimeout(resolve, ms))
+            return new Promise((resolve) => setTimeout(resolve, ms));
         }
 
         for (let i = 0; i < MAX_RETRY; i++) {
@@ -465,22 +532,29 @@ export default class InnerTube {
                     'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
                     'Content-Type': 'application/json'
                 }
-            })
+            });
 
-            jsonData = await res.json()
-            await sleep(200)
+            jsonData = await res.json();
+            await sleep(200);
 
             if ('error' in jsonData) {
-                continue
+                continue;
             } else {
-                break
+                break;
             }
         }
 
         if ('error' in jsonData) {
-            throw new Error(jsonData.error)
+            throw new Error(jsonData.error);
         }
 
-        return jsonData.audioStreams
+        return jsonData.audioStreams;
     }
 }
+
+// testing
+// const innerTube = new InnerTube();
+
+// innerTube.browse('VLPL8zpGXaXwt-uuV1HMEvkQvZ9U9_v1ZhlU', 'PLAYLIST').then((res) => {
+//     writeFileSync('./testingData.json', JSON.stringify(res));
+// });

@@ -9,7 +9,7 @@ import Settings from './views/Settings';
 const App = () => {
     const { view } = useAppContext();
     return (
-        <div className="bg-transparent text-black dark:text-white w-screen h-screen overflow-hidden">
+        <div className="bg-transparent text-black dark:text-white w-screen h-screen overflow-hidden select-none">
             <WithSideBar>
                 {view === 'HOME' && <Home />}
                 {view === 'SEARCH' && <Search />}

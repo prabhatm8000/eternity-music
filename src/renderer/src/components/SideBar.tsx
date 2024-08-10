@@ -16,28 +16,28 @@ const SideBar = () => {
                     <ul className="space-y-1.5">
                         <li
                             onClick={() => setView('HOME')}
-                            className={`flex items-center gap-2 py-1 px-3 rounded-md hover:bg-black/5 dark:hover:bg-white/5 ${view === 'HOME' ? 'bg-black/5 dark:bg-white/5' : ''}`}
+                            className={`cursor-pointer flex items-center gap-2 py-1 px-3 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-100 ease-in ${view === 'HOME' ? 'bg-black/5 dark:bg-white/5' : ''}`}
                         >
                             <HomeIcon className="size-5" />
                             Home
                         </li>
                         <li
                             onClick={() => setView('SEARCH')}
-                            className={`flex items-center gap-2 py-1 px-3 rounded-md hover:bg-black/5 dark:hover:bg-white/5 ${view === 'SEARCH' ? 'bg-black/5 dark:bg-white/5' : ''}`}
+                            className={`cursor-pointer flex items-center gap-2 py-1 px-3 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-100 ease-in ${view === 'SEARCH' ? 'bg-black/5 dark:bg-white/5' : ''}`}
                         >
                             <SearchIcon className="size-5" />
                             Search
                         </li>
                         <li
                             onClick={() => setView('LIBRARY')}
-                            className={`flex items-center gap-2 py-1 px-3 rounded-md hover:bg-black/5 dark:hover:bg-white/5 ${view === 'LIBRARY' ? 'bg-black/5 dark:bg-white/5' : ''}`}
+                            className={`cursor-pointer flex items-center gap-2 py-1 px-3 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-100 ease-in ${view === 'LIBRARY' ? 'bg-black/5 dark:bg-white/5' : ''}`}
                         >
                             <LibraryIcon className="size-5" />
                             Library
                         </li>
                         <li
                             onClick={() => setView('SETTINGS')}
-                            className={`flex items-center gap-2 py-1 px-3 rounded-md hover:bg-black/5 dark:hover:bg-white/5 ${view === 'SETTINGS' ? 'bg-black/5 dark:bg-white/5' : ''}`}
+                            className={`cursor-pointer flex items-center gap-2 py-1 px-3 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-100 ease-in ${view === 'SETTINGS' ? 'bg-black/5 dark:bg-white/5' : ''}`}
                         >
                             <SettingsIcon className="size-5" />
                             Settings
@@ -50,7 +50,7 @@ const SideBar = () => {
                 <ul>
                     <li
                         onClick={() => setView('HELP')}
-                        className={`flex items-center gap-2 py-1 px-3 rounded-md hover:bg-black/5 dark:hover:bg-white/5 ${view === 'HELP' ? 'bg-black/5 dark:bg-white/5' : ''}`}
+                        className={`cursor-pointer flex items-center gap-2 py-1 px-3 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-100 ease-in ${view === 'HELP' ? 'bg-black/5 dark:bg-white/5' : ''}`}
                     >
                         <HelpIcon className="size-5" />
                         Help
