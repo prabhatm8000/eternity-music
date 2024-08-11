@@ -3,6 +3,7 @@ import type {
     AlbumPage,
     ArtistPage,
     BrowseBody,
+    ContinuationBody,
     PlaylistPage,
     SearchBody,
     SearchResult
@@ -10,7 +11,10 @@ import type {
 import type { InnerTubeAPI } from './types';
 
 export const innerTubeAPI: InnerTubeAPI = {
-    search: (searchBody: SearchBody, callback: (searchResult: SearchResult) => void) => {
+    search: (
+        searchBody: SearchBody | ContinuationBody,
+        callback: (searchResult: SearchResult) => void
+    ) => {
         ipcRenderer.send('search', searchBody);
         ipcRenderer.once('search-reply', (_event, searchResult: SearchResult) =>
             callback(searchResult)

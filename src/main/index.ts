@@ -10,7 +10,7 @@ import {
 function createWindow(): void {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
-        minWidth: 500,
+        minWidth: 700,
         minHeight: 300,
         show: false,
         autoHideMenuBar: true,

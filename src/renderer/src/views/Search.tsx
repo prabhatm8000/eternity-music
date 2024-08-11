@@ -57,6 +57,7 @@ const Search = () => {
         const handleUpDownKeys = (ev: KeyboardEvent) => {
             if (ev.key === 'ArrowLeft') {
                 setTabIndexOnFocus((prevIndex) => {
+                    setPrevTabIndex(prevIndex);
                     if (prevIndex > 0) {
                         return prevIndex - 1;
                     }
@@ -64,6 +65,7 @@ const Search = () => {
                 });
             } else if (ev.key === 'ArrowRight') {
                 setTabIndexOnFocus((prevIndex) => {
+                    setPrevTabIndex(prevIndex);
                     if (prevIndex < tabsToRender.length - 1) {
                         return prevIndex + 1;
                     }
@@ -84,7 +86,7 @@ const Search = () => {
     });
 
     return (
-        <div className="px-4">
+        <div className="px-2">
             {tabIndexOnFocus === -1 && (
                 <SearchMain
                     searchQuery={searchQuery}
@@ -97,13 +99,15 @@ const Search = () => {
                 <div className="space-y-2">
                     {/* search query */}
                     <div
-                        className="flex justify-end gap-2 items-center cursor-pointer focus:outline-none"
+                        className="ps-10 w-full flex justify-end gap-2 items-center cursor-pointer focus:outline-none"
                         onClick={handleSearchFloatingBtn}
                     >
-                        <div className="w-full py-2 ms-10 bg-inherit text-end text-4xl">
+                        <div className=" py-2 w-[calc(100vw-335px)] bg-inherit text-end text-4xl truncate">
                             {searchQuery}
                         </div>
-                        <SearchIcon className="size-9 text-black/60 dark:text-white/60 hover:text-inherit transition-colors duration-200 ease-in focus:outline-none" />
+                        <button onClick={handleSearchFloatingBtn} className="focus:outline-none">
+                            <SearchIcon className="size-8 text-black/60 dark:text-white/60 hover:text-inherit transition-colors duration-200 ease-in focus:outline-none" />
+                        </button>
                     </div>
 
                     {/* tabs */}
@@ -157,10 +161,10 @@ const Search = () => {
             {tabIndexOnFocus > -1 && tabsToRender[tabIndexOnFocus].id !== 'MAIN' && (
                 <button
                     tabIndex={3}
-                    className="fixed z-30 bottom-10 right-10 p-4 rounded-lg bg-black/10 dark:bg-white/10 hover:bg-black/15 dark:hover:bg-white/15 focus:outline-none border border-transparent focus:border-black/30 dark:focus:border-white/30 transition-colors duration-200 ease-in"
+                    className="fixed z-30 bottom-10 right-10 p-4 rounded-lg bg-stone-600/70 dark:bg-stone-200/70 hover:bg-stone-600/90 dark:hover:bg-stone-200/90 focus:outline-none border-4 border-transparent focus:border-black/30 dark:focus:border-white/30 transition-colors duration-200 ease-in"
                     onClick={handleSearchFloatingBtn}
                 >
-                    <SearchIcon className="size-6 text-black dark:text-white" />
+                    <SearchIcon className="size-6 text-white dark:text-black" />
                 </button>
             )}
         </div>

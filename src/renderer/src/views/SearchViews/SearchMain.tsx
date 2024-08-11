@@ -20,14 +20,18 @@ const SearchMain = ({
         handleSearch(suggestion.trim());
     };
 
+    const handleQuerySubmit = (ev: React.FormEvent) => {
+        ev.preventDefault();
+        handleSearch(searchQueryInput.trim());
+    };
+
     // Search Suggestions (throttled)
     useEffect(() => {
-        if (searchQueryInput.trim().length < 2) {
-            setSearchSuggestions([]);
-            return;
-        }
-
         const timeoutId = setTimeout(() => {
+            if (searchQueryInput?.trim().length < 2) {
+                setSearchSuggestions([]);
+                return;
+            }
             window.innerTube.searchSuggestions(searchQueryInput.trim(), setSearchSuggestions);
         }, 500);
 
@@ -39,23 +43,15 @@ const SearchMain = ({
     // Arrow key listeners
     useEffect(() => {
         const handleUpDownKeys = (ev: KeyboardEvent) => {
-            console.log(ev.code);
-            
             if (ev.key === 'ArrowUp') {
                 setSuggestionIndexOnFocus((prevIndex) => {
-                    if (prevIndex > 0) {
-                        return prevIndex - 1;
-                    }
-                    return searchSuggestions.length - 1;
+                    return prevIndex > 0 ? prevIndex - 1 : searchSuggestions.length - 1;
                 });
             } else if (ev.key === 'ArrowDown') {
                 setSuggestionIndexOnFocus((prevIndex) => {
-                    if (prevIndex < searchSuggestions.length - 1) {
-                        return prevIndex + 1;
-                    }
-                    return 0;
+                    return prevIndex < searchSuggestions.length - 1 ? prevIndex + 1 : 0;
                 });
-            } else if (ev.key === 'Enter') {
+            } else if (ev.key === 'Enter' && suggestionIndexOnFocus > -1) {
                 handleSuggestionClick(searchSuggestions[suggestionIndexOnFocus]);
             }
         };
@@ -64,7 +60,7 @@ const SearchMain = ({
 
         return () => {
             document.removeEventListener('keydown', handleUpDownKeys);
-        }
+        };
     });
 
     return (
@@ -72,7 +68,7 @@ const SearchMain = ({
             <form
                 autoFocus
                 className="flex justify-end gap-2 items-center"
-                onSubmit={() => handleSearch(searchQueryInput.trim())}
+                onSubmit={handleQuerySubmit}
             >
                 <button type="button" className="focus:outline-none" onClick={handleBackBtn}>
                     <BackIcon className="size-6 text-black/60 dark:text-white/60 hover:text-inherit transition-colors duration-200 ease-in focus:outline-none" />
