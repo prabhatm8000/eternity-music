@@ -22,17 +22,20 @@ const SearchMain = ({
 
     const handleQuerySubmit = (ev: React.FormEvent) => {
         ev.preventDefault();
-        handleSearch(searchQueryInput.trim());
+        const trimedSearchQuery = searchQueryInput.trim();
+        handleSearch(trimedSearchQuery);
+        if (searchQuery !== trimedSearchQuery) {
+        }
     };
 
     // Search Suggestions (throttled)
     useEffect(() => {
         const timeoutId = setTimeout(() => {
-            if (searchQueryInput?.trim().length < 2) {
-                setSearchSuggestions([]);
+            if (searchQueryInput?.trim().length > 2) {
+                window.innerTube.searchSuggestions(searchQueryInput.trim(), setSearchSuggestions);
                 return;
             }
-            window.innerTube.searchSuggestions(searchQueryInput.trim(), setSearchSuggestions);
+            setSearchSuggestions([]);
         }, 500);
 
         return () => {

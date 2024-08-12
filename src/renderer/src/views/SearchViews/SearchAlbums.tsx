@@ -1,4 +1,7 @@
-const SearchAlbums = ({ searchQuery }: { searchQuery: string }) => {
+import { useSearchContext } from "@renderer/hooks/useSearchContext";
+
+const SearchAlbums = () => {
+    const { searchQuery } = useSearchContext();
     return <div>Albums: {searchQuery}</div>;
 };
 

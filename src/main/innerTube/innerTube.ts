@@ -105,6 +105,7 @@ export default class InnerTube {
               )[0];
 
         const searchResult: SearchResult = {
+            query: 'query' in reqBody ? reqBody.query : 'SEARCH_RESULT_FROM_CONTINUATION',
             contents: continuation
                 ? data?.musicShelfContinuation?.contents?.map((content) =>
                       this.filterAndOrganizeSearchResult(content, reqBody.type)

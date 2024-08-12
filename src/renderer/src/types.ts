@@ -13,6 +13,7 @@ export type SearchType =
     | 'SEARCH_TYPE_ALBUM';
 
 export type SearchResult = {
+    query: string | 'SEARCH_RESULT_FROM_CONTINUATION';
     contents: Content[];
     continuation: string;
 };

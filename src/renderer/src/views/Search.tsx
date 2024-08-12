@@ -6,6 +6,7 @@ import SearchVideos from './SearchViews/SearchVideos';
 import SearchArtists from './SearchViews/SearchArtists';
 import SearchAlbums from './SearchViews/SearchAlbums';
 import SearchPlaylists from './SearchViews/SearchPlaylists';
+import { useSearchContext } from '@renderer/hooks/useSearchContext';
 
 type TabType = 'MAIN' | 'SONGS' | 'VIDEOS' | 'ARTISTS' | 'ALBUMS' | 'PLAYLISTS';
 const tabsToRender: { id: TabType; label: string }[] = [
@@ -32,9 +33,14 @@ const tabsToRender: { id: TabType; label: string }[] = [
 ];
 
 const Search = () => {
-    const [tabIndexOnFocus, setTabIndexOnFocus] = useState<number>(-1);
-    const [prevTabIndex, setPrevTabIndex] = useState<number>(tabIndexOnFocus);
-    const [searchQuery, setSearchQuery] = useState<string>('');
+    const {
+        tabIndexOnFocus,
+        setTabIndexOnFocus,
+        prevTabIndex,
+        setPrevTabIndex,
+        searchQuery,
+        setSearchQuery
+    } = useSearchContext();
 
     const [searchResultTabsOnFocus, setSearchResultTabsOnFocus] = useState<boolean>(false);
 
@@ -142,19 +148,19 @@ const Search = () => {
                 className="focus:outline-none"
             >
                 {tabIndexOnFocus > -1 && tabsToRender[tabIndexOnFocus].id === 'SONGS' && (
-                    <SearchSongs searchQuery={searchQuery} />
+                    <SearchSongs />
                 )}
                 {tabIndexOnFocus > -1 && tabsToRender[tabIndexOnFocus].id === 'VIDEOS' && (
-                    <SearchVideos searchQuery={searchQuery} />
+                    <SearchVideos />
                 )}
                 {tabIndexOnFocus > -1 && tabsToRender[tabIndexOnFocus].id === 'ARTISTS' && (
-                    <SearchArtists searchQuery={searchQuery} />
+                    <SearchArtists />
                 )}
                 {tabIndexOnFocus > -1 && tabsToRender[tabIndexOnFocus].id === 'ALBUMS' && (
-                    <SearchAlbums searchQuery={searchQuery} />
+                    <SearchAlbums />
                 )}
                 {tabIndexOnFocus > -1 && tabsToRender[tabIndexOnFocus].id === 'PLAYLISTS' && (
-                    <SearchPlaylists searchQuery={searchQuery} />
+                    <SearchPlaylists />
                 )}
             </div>
 
