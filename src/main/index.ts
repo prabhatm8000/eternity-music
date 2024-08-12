@@ -1,6 +1,6 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron';
+import { electronApp, is, optimizer } from '@electron-toolkit/utils';
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { join } from 'path';
-import { electronApp, optimizer, is } from '@electron-toolkit/utils';
 import {
     browseHandler,
     searchHandler,
@@ -10,7 +10,7 @@ import {
 function createWindow(): void {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
-        minWidth: 500,
+        minWidth: 700,
         minHeight: 300,
         show: false,
         autoHideMenuBar: true,
@@ -22,13 +22,13 @@ function createWindow(): void {
         },
         vibrancy: 'fullscreen-ui', // on MacOS
         backgroundMaterial: 'tabbed', // on Windows 11
-        titleBarStyle: 'customButtonsOnHover',
         minimizable: true,
         maximizable: true,
     });
 
     mainWindow.on('ready-to-show', () => {
         mainWindow.show();
+        mainWindow.webContents.openDevTools();
     });
 
     mainWindow.webContents.setWindowOpenHandler((details) => {

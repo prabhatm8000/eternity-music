@@ -105,6 +105,7 @@ export default class InnerTube {
               )[0];
 
         const searchResult: SearchResult = {
+            query: 'query' in reqBody ? reqBody.query : 'SEARCH_RESULT_FROM_CONTINUATION',
             contents: continuation
                 ? data?.musicShelfContinuation?.contents?.map((content) =>
                       this.filterAndOrganizeSearchResult(content, reqBody.type)
@@ -112,9 +113,9 @@ export default class InnerTube {
                 : data?.musicShelfRenderer?.contents?.map((content) =>
                       this.filterAndOrganizeSearchResult(content, reqBody.type)
                   ),
-            continuation: data?.musicShelfRenderer?.continuations
-                ? data?.musicShelfRenderer?.continuations[0]?.nextContinuationData?.continuation
-                : []
+            continuation: continuation
+                ? data?.musicShelfContinuation?.continuations[0]?.nextContinuationData?.continuation
+                : data?.musicShelfRenderer?.continuations[0]?.nextContinuationData?.continuation
         };
 
         return searchResult;
@@ -264,9 +265,7 @@ export default class InnerTube {
         return searchSuggestions;
     }
 
-    async browse(
-        browseBody: BrowseBody
-    ): Promise<ArtistPage | AlbumPage | PlaylistPage | null> {
+    async browse(browseBody: BrowseBody): Promise<ArtistPage | AlbumPage | PlaylistPage | null> {
         const res = await fetch(`https://music.youtube.com${ApiPaths.browse}?prettyPrint=false`, {
             method: 'POST',
             headers: {
@@ -555,6 +554,12 @@ export default class InnerTube {
 // testing
 // const innerTube = new InnerTube();
 
-// innerTube.browse('VLPL8zpGXaXwt-uuV1HMEvkQvZ9U9_v1ZhlU', 'PLAYLIST').then((res) => {
-//     writeFileSync('./testingData.json', JSON.stringify(res));
-// });
+// innerTube
+//     .search({
+//         continuation:
+//             'Eq4DEglib2xseXdvb2QaoANFZ1dLQVFJSUFVZ29haEFRQXhBRUVBVVFDUkFLRUJFUUVCQVZnZ0VMVDBaQlJGbGFWV3MzVXpDQ0FRdHhPV0V6U0dwTVpWTktUWUlCQ3poMlVFMHpTRjlVUWpadmdnRUxUV0pYY0ZCMWRWVXhWbU9DQVFzMFlXdEtiSGhPUW04elRZSUJDMFpQUVRscGVYaHpWMTlCZ2dFTFpWaHJTSFpVTFMxRVFsV0NBUXROVEY5SmNYQXhObDloVllJQkMxOXdiVVJ2Y1c1VVFWZG5nZ0VMTjNWVGFpMTROa1ZKVlVXQ0FRc3pSVEZPVEZaNlJGcGZXWUlCQzBrNU5HWm9hbEV0VlRNd2dnRUxSVGg2VDNBMFMzRmpiSE9DQVF0b2JWQTFaa2MzWHpKcGQ0SUJDMjQwWnpoeGRGcGpNbEV3Z2dFTGIxZDZVWGMyUTBaYWQyLUNBUXQzYzFaR1lsSkVVVU5VYjRJQkMySnJWM0JEYldVMlNrTnZnZ0VMTlRGUGVqQnNMWEZTTTAyQ0FRdHhNWFZRVUVKS01uUmpTUSUzRCUzRBjx6tAu',
+//         type: 'SEARCH_TYPE_SONG'
+//     })
+//     .then((res) => {
+//         writeFileSync('./testingData.json', JSON.stringify(res));
+//     });
