@@ -3,11 +3,11 @@ import { useState } from 'react';
 const ThumbnailRenderer = ({
     url,
     errorImageUrl,
-    imageClassName = 'size-24'
+    className = 'size-16'
 }: {
     url: string;
     errorImageUrl: string | any;
-    imageClassName?: string;
+    className?: string;
 }) => {
     const [imageUrl, setImageUrl] = useState<string | any>(url);
 
@@ -16,7 +16,7 @@ const ThumbnailRenderer = ({
             onError={() => setImageUrl(errorImageUrl)}
             src={imageUrl}
             alt="Thumbnail"
-            className={imageClassName + " rounded-sm object-cover"}
+            className={className + " rounded-sm object-cover"}
         />
     );
 };
