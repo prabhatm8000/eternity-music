@@ -75,12 +75,11 @@ const TrackList = ({
                     </div>
                 ))}
 
-            {isLoading ||
-                (isFetching && (
-                    <div className="text-center text-black/60 dark:text-white/60">
-                        {isLoading ? 'loading...' : 'fetching more...'}
-                    </div>
-                ))}
+            {(isLoading || isFetching) && (
+                <div className="text-center text-black/60 dark:text-white/60">
+                    {isLoading ? 'loading...' : 'fetching more...'}
+                </div>
+            )}
         </div>
     );
 };

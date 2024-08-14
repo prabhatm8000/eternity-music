@@ -1,3 +1,4 @@
+import { writeFileSync } from 'fs';
 import {
     ApiPaths,
     MAX_RETRY,
@@ -98,6 +99,8 @@ export default class InnerTube {
 
         const jsonData = await res.json();
 
+        // writeFileSync('./testingData.json', JSON.stringify(jsonData));
+
         const data = continuation
             ? jsonData.continuationContents
             : jsonData.contents?.tabbedSearchResultsRenderer?.tabs[0]?.tabRenderer.content.sectionListRenderer.contents.filter(
@@ -114,8 +117,13 @@ export default class InnerTube {
                       this.filterAndOrganizeSearchResult(content, reqBody.type)
                   ),
             continuation: continuation
-                ? data?.musicShelfContinuation?.continuations[0]?.nextContinuationData?.continuation
-                : data?.musicShelfRenderer?.continuations[0]?.nextContinuationData?.continuation
+                ? data?.musicShelfContinuation?.continuations?.length > 0
+                    ? data?.musicShelfContinuation?.continuations[0]?.nextContinuationData
+                          ?.continuation
+                    : undefined
+                : data?.musicShelfRenderer?.continuations?.length > 0
+                  ? data?.musicShelfRenderer?.continuations[0]?.nextContinuationData?.continuation
+                  : undefined
         };
 
         return searchResult;
@@ -181,6 +189,9 @@ export default class InnerTube {
             type === 'SEARCH_TYPE_ARTIST' ||
             type === 'SEARCH_TYPE_PLAYLIST'
         ) {
+            title =
+                content?.musicResponsiveListItemRenderer?.flexColumns[0]
+                    ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs[0]?.text;
             browserEndpoint =
                 content?.musicResponsiveListItemRenderer?.navigationEndpoint?.browseEndpoint;
         }
@@ -556,9 +567,8 @@ export default class InnerTube {
 
 // innerTube
 //     .search({
-//         continuation:
-//             'Eq4DEglib2xseXdvb2QaoANFZ1dLQVFJSUFVZ29haEFRQXhBRUVBVVFDUkFLRUJFUUVCQVZnZ0VMVDBaQlJGbGFWV3MzVXpDQ0FRdHhPV0V6U0dwTVpWTktUWUlCQ3poMlVFMHpTRjlVUWpadmdnRUxUV0pYY0ZCMWRWVXhWbU9DQVFzMFlXdEtiSGhPUW04elRZSUJDMFpQUVRscGVYaHpWMTlCZ2dFTFpWaHJTSFpVTFMxRVFsV0NBUXROVEY5SmNYQXhObDloVllJQkMxOXdiVVJ2Y1c1VVFWZG5nZ0VMTjNWVGFpMTROa1ZKVlVXQ0FRc3pSVEZPVEZaNlJGcGZXWUlCQzBrNU5HWm9hbEV0VlRNd2dnRUxSVGg2VDNBMFMzRmpiSE9DQVF0b2JWQTFaa2MzWHpKcGQ0SUJDMjQwWnpoeGRGcGpNbEV3Z2dFTGIxZDZVWGMyUTBaYWQyLUNBUXQzYzFaR1lsSkVVVU5VYjRJQkMySnJWM0JEYldVMlNrTnZnZ0VMTlRGUGVqQnNMWEZTTTAyQ0FRdHhNWFZRVUVKS01uUmpTUSUzRCUzRBjx6tAu',
-//         type: 'SEARCH_TYPE_SONG'
+//         query: 'espresso',
+//         type: 'SEARCH_TYPE_ARTIST'
 //     })
 //     .then((res) => {
 //         writeFileSync('./testingData.json', JSON.stringify(res));

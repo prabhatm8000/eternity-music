@@ -1,0 +1,142 @@
+{
+    "query": "espresso",
+    "contents": [
+        {
+            "thumbnail": [
+                {
+                    "url": "https://lh3.googleusercontent.com/FMh1mOI0ufvUCAkbUM6aUmU5WK7O5PnndyyXKP1-DCEip20SQz5eeYn3lZ29p-ASb-19ZfBVc_NKe5Ko=w60-h60-p-l90-rj",
+                    "width": 60,
+                    "height": 60
+                },
+                {
+                    "url": "https://lh3.googleusercontent.com/FMh1mOI0ufvUCAkbUM6aUmU5WK7O5PnndyyXKP1-DCEip20SQz5eeYn3lZ29p-ASb-19ZfBVc_NKe5Ko=w120-h120-p-l90-rj",
+                    "width": 120,
+                    "height": 120
+                }
+            ],
+            "title": "Sabrina Carpenter",
+            "artist": [],
+            "browserEndpoint": {
+                "browseId": "UCz51ZodJbYUNfkdPHOjJKKw",
+                "browseEndpointContextSupportedConfigs": {
+                    "browseEndpointContextMusicConfig": { "pageType": "MUSIC_PAGE_TYPE_ARTIST" }
+                }
+            },
+            "subscribers": "8.36M subscribers"
+        },
+        {
+            "thumbnail": [
+                {
+                    "url": "https://lh3.googleusercontent.com/agHrlI44iZrP6xwjtGIvBi5Oojf6q1IoZCeQLO1EcTjOWkbxkM7hRLYgPwyOP6SMynJ6hEizDIXoF2hr=w60-h60-l90-rj",
+                    "width": 60,
+                    "height": 60
+                },
+                {
+                    "url": "https://lh3.googleusercontent.com/agHrlI44iZrP6xwjtGIvBi5Oojf6q1IoZCeQLO1EcTjOWkbxkM7hRLYgPwyOP6SMynJ6hEizDIXoF2hr=w120-h120-l90-rj",
+                    "width": 120,
+                    "height": 120
+                }
+            ],
+            "title": "The Espresso & Jazz Lounge",
+            "artist": [],
+            "browserEndpoint": {
+                "browseId": "UCuA1kAnjGUDFrTwSN-482xA",
+                "browseEndpointContextSupportedConfigs": {
+                    "browseEndpointContextMusicConfig": { "pageType": "MUSIC_PAGE_TYPE_ARTIST" }
+                }
+            },
+            "subscribers": "1 subscriber"
+        },
+        {
+            "thumbnail": [
+                {
+                    "url": "https://lh3.googleusercontent.com/4M2AI_9EhPxOz5urjuy0mSzFNbgzg3CBg6hVd0be03nB8PsxTy-q39gWqZHKPVipYij3nuxOj23zrjw=w60-h60-l90-rj",
+                    "width": 60,
+                    "height": 60
+                },
+                {
+                    "url": "https://lh3.googleusercontent.com/4M2AI_9EhPxOz5urjuy0mSzFNbgzg3CBg6hVd0be03nB8PsxTy-q39gWqZHKPVipYij3nuxOj23zrjw=w120-h120-l90-rj",
+                    "width": 120,
+                    "height": 120
+                }
+            ],
+            "title": "The Espresso & Jazz Lounge",
+            "artist": [],
+            "browserEndpoint": {
+                "browseId": "UCj05z2MCZisHG8XSFcbs1kQ",
+                "browseEndpointContextSupportedConfigs": {
+                    "browseEndpointContextMusicConfig": { "pageType": "MUSIC_PAGE_TYPE_ARTIST" }
+                }
+            }
+        },
+        {
+            "thumbnail": [
+                {
+                    "url": "https://lh3.googleusercontent.com/p-Bw4UwmNkj2pbXhnhCTaeAHVu_GHSH1HwsSc2-OWQVnGKUDRiAX_RsJFxeGbg_4eGkaRiBnYyA-3TI=w60-h60-l90-rj",
+                    "width": 60,
+                    "height": 60
+                },
+                {
+                    "url": "https://lh3.googleusercontent.com/p-Bw4UwmNkj2pbXhnhCTaeAHVu_GHSH1HwsSc2-OWQVnGKUDRiAX_RsJFxeGbg_4eGkaRiBnYyA-3TI=w120-h120-l90-rj",
+                    "width": 120,
+                    "height": 120
+                }
+            ],
+            "title": "Espresso From Hell",
+            "artist": [],
+            "browserEndpoint": {
+                "browseId": "UCIn3WIR-DCs31eX7jf5kG9g",
+                "browseEndpointContextSupportedConfigs": {
+                    "browseEndpointContextMusicConfig": { "pageType": "MUSIC_PAGE_TYPE_ARTIST" }
+                }
+            },
+            "subscribers": "5 subscribers"
+        },
+        {
+            "thumbnail": [
+                {
+                    "url": "https://lh3.googleusercontent.com/_KCPGIEazmgq_0e9Bl2PD3i1PqV5svoxEbl_ejwCqrw3UJQ7JmF09RLVC1elSSNMTncIIQywvOJ8qVsp=w60-h60-l90-rj",
+                    "width": 60,
+                    "height": 60
+                },
+                {
+                    "url": "https://lh3.googleusercontent.com/_KCPGIEazmgq_0e9Bl2PD3i1PqV5svoxEbl_ejwCqrw3UJQ7JmF09RLVC1elSSNMTncIIQywvOJ8qVsp=w120-h120-l90-rj",
+                    "width": 120,
+                    "height": 120
+                }
+            ],
+            "title": "Espresso Band",
+            "artist": [],
+            "browserEndpoint": {
+                "browseId": "UCiqpT8Rn-l7BXfvL3f4nkUA",
+                "browseEndpointContextSupportedConfigs": {
+                    "browseEndpointContextMusicConfig": { "pageType": "MUSIC_PAGE_TYPE_ARTIST" }
+                }
+            },
+            "subscribers": "841 subscribers"
+        },
+        {
+            "thumbnail": [
+                {
+                    "url": "https://lh3.googleusercontent.com/K6uNmBkDmw97QRWmxXoOPUkdSTQrszXkN1E6Qsc9aGGzZOvkwElk29u2mobZMJDjrDpimF0dNFXbIRFo=w60-h60-l90-rj",
+                    "width": 60,
+                    "height": 60
+                },
+                {
+                    "url": "https://lh3.googleusercontent.com/K6uNmBkDmw97QRWmxXoOPUkdSTQrszXkN1E6Qsc9aGGzZOvkwElk29u2mobZMJDjrDpimF0dNFXbIRFo=w120-h120-l90-rj",
+                    "width": 120,
+                    "height": 120
+                }
+            ],
+            "title": "Espresso Patronum",
+            "artist": [],
+            "browserEndpoint": {
+                "browseId": "UCYe4YcS8lYIDH_faCI5wpNw",
+                "browseEndpointContextSupportedConfigs": {
+                    "browseEndpointContextMusicConfig": { "pageType": "MUSIC_PAGE_TYPE_ARTIST" }
+                }
+            },
+            "subscribers": "2 subscribers"
+        }
+    ]
+}

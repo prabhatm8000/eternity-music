@@ -1,12 +1,12 @@
 import SearchIcon from '@renderer/components/icons/SearchIcon';
 import TrackList from '@renderer/components/TrackList';
 import { useSearchContext } from '@renderer/hooks/useSearchContext';
-import type { SearchResult, SearchType, Song, Video } from '@renderer/types';
+import type { Artist, SearchResult, SearchType, Song, Video } from '@renderer/types';
 import { useEffect, useState } from 'react';
 import SearchAlbums from './SearchViews/SearchAlbums';
-import SearchArtists from './SearchViews/SearchArtists';
 import SearchMain from './SearchViews/SearchMain';
 import SearchPlaylists from './SearchViews/SearchPlaylists';
+import ArtistList from '@renderer/components/ArtistList';
 
 type TabType = 'MAIN' | 'SONGS' | 'VIDEOS' | 'ARTISTS' | 'ALBUMS' | 'PLAYLISTS';
 const tabsToRender: { id: TabType; label: string }[] = [
@@ -208,6 +208,33 @@ const Search = () => {
         );
     };
 
+    const handleFetchMoreArtists = () => {
+        if (!searchResults.artists || searchResults.artists?.continuation === undefined) {
+            return;
+        }
+
+        setIsFetching(true);
+        window.innerTube.search(
+            { continuation: searchResults.artists.continuation, type: 'SEARCH_TYPE_ARTIST' },
+            (searchResult) => {
+                setSearchResults((prev) => {
+                    return {
+                        ...prev,
+                        artists: {
+                            query: prev.artists?.query || 'SEARCH_RESULT_FROM_CONTINUATION',
+                            contents: [
+                                ...(prev.artists?.contents || []),
+                                ...(searchResult.contents || [])
+                            ],
+                            continuation: searchResult.continuation
+                        }
+                    };
+                });
+                setIsFetching(false);
+            }
+        );
+    };
+
     return (
         <div className="px-2">
             {tabIndexOnFocus === -1 && (
@@ -288,10 +315,16 @@ const Search = () => {
                                 isFetching={isFetching}
                             />
                         )}
+
+                    {tabIndexOnFocus > -1 && tabsToRender[tabIndexOnFocus].id === 'ARTISTS' && (
+                        <ArtistList
+                            artists={searchResults.artists?.contents as Artist[]}
+                            handleFetchMore={handleFetchMoreArtists}
+                            isLoading={isLoading}
+                            isFetching={isFetching}
+                        />
+                    )}
                 </div>
-                {tabIndexOnFocus > -1 && tabsToRender[tabIndexOnFocus].id === 'ARTISTS' && (
-                    <SearchArtists />
-                )}
                 {tabIndexOnFocus > -1 && tabsToRender[tabIndexOnFocus].id === 'ALBUMS' && (
                     <SearchAlbums />
                 )}
