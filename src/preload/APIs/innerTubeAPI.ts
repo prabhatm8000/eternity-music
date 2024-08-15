@@ -22,9 +22,13 @@ export const innerTubeAPI: InnerTubeAPI = {
     },
     searchSuggestions: (query: string, callback: (searchSuggestions: string[]) => void) => {
         ipcRenderer.send('search-suggestions', query);
-        ipcRenderer.once('search-suggestions-reply', (_event, searchSuggestions: string[]) =>
-            callback(searchSuggestions)
-        );
+        ipcRenderer.once('search-suggestions-reply', (_event, searchSuggestions: string[]) => {
+            if (typeof searchSuggestions === 'string') {
+                callback([]);
+            } else {
+                callback(searchSuggestions);
+            }
+        });
     },
     browse: (
         browseBody: BrowseBody,

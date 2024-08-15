@@ -1,7 +1,6 @@
 import type { Song, Video } from '@renderer/types';
-import ThumbnailRenderer from './ThumbnailRenderer';
-import thumbnailErrorImage from '../assets/error-thumbnail.svg';
 import { useCallback, useRef } from 'react';
+import ThumbnailRenderer from './ThumbnailRenderer';
 
 const TrackList = ({
     tracks,
@@ -45,8 +44,7 @@ const TrackList = ({
                     >
                         <ThumbnailRenderer
                             url={track.thumbnail[track.thumbnail.length - 1].url}
-                            errorImageUrl={thumbnailErrorImage}
-                            className={`${isSongs ? 'size-16' : 'h-16 w-28'}`}
+                            className={`${isSongs ? 'size-16' : 'h-16 w-28'} rounded-sm`}
                         />
 
                         <div className="-translate-y-0.5 grid grid-cols-[calc(100%-90px-16px)_90px] gap-4 items-center leading-tight">

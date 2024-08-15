@@ -1,7 +1,6 @@
 import type { Artist } from '@renderer/types';
 import { useCallback, useRef } from 'react';
 import ThumbnailRenderer from './ThumbnailRenderer';
-import thumbnailErrorImage from '../assets/error-thumbnail.svg';
 
 const ArtistList = ({
     artists,
@@ -34,7 +33,7 @@ const ArtistList = ({
     return (
         <div className="space-y-2 pe-2 overflow-y-auto h-full">
             {!isLoading &&
-                artists.map((artist: Artist, index) => (
+                artists?.map((artist: Artist, index) => (
                     <div
                         ref={index === artists.length - 1 ? lastArtistRef : undefined}
                         key={artist?.browserEndpoint.browseId + index}
@@ -42,7 +41,6 @@ const ArtistList = ({
                     >
                         <ThumbnailRenderer
                             url={artist.thumbnail[artist.thumbnail.length - 1].url}
-                            errorImageUrl={thumbnailErrorImage}
                             className="size-16 rounded-full"
                         />
 
