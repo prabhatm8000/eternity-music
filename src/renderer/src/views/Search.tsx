@@ -1,12 +1,12 @@
+import AlbumList from '@renderer/components/AlbumList';
+import ArtistList from '@renderer/components/ArtistList';
 import SearchIcon from '@renderer/components/icons/SearchIcon';
+import PlaylistList from '@renderer/components/PlaylistList';
 import TrackList from '@renderer/components/TrackList';
 import { useSearchContext } from '@renderer/hooks/useSearchContext';
-import type { SearchResult, SearchType, Song, Video } from '@renderer/types';
+import type { Album, Artist, SearchResult, SearchType, Song, Video } from '@renderer/types';
 import { useEffect, useState } from 'react';
-import SearchAlbums from './SearchViews/SearchAlbums';
-import SearchArtists from './SearchViews/SearchArtists';
 import SearchMain from './SearchViews/SearchMain';
-import SearchPlaylists from './SearchViews/SearchPlaylists';
 
 type TabType = 'MAIN' | 'SONGS' | 'VIDEOS' | 'ARTISTS' | 'ALBUMS' | 'PLAYLISTS';
 const tabsToRender: { id: TabType; label: string }[] = [
@@ -96,6 +96,7 @@ const Search = () => {
         };
     });
 
+    // Search Results
     useEffect(() => {
         let resultObj: SearchResult | undefined;
         let type: SearchType | undefined;
@@ -155,6 +156,8 @@ const Search = () => {
     }, [searchQuery, tabIndexOnFocus]);
 
     const handleFetchMoreSongs = () => {
+        console.log(searchResults.songs?.continuation, 'continuation');
+
         if (!searchResults.songs || searchResults.songs?.continuation === undefined) {
             return;
         }
@@ -197,6 +200,87 @@ const Search = () => {
                             query: prev.videos?.query || 'SEARCH_RESULT_FROM_CONTINUATION',
                             contents: [
                                 ...(prev.videos?.contents || []),
+                                ...(searchResult.contents || [])
+                            ],
+                            continuation: searchResult.continuation
+                        }
+                    };
+                });
+                setIsFetching(false);
+            }
+        );
+    };
+
+    const handleFetchMoreArtists = () => {
+        if (!searchResults.artists || searchResults.artists?.continuation === undefined) {
+            return;
+        }
+
+        setIsFetching(true);
+        window.innerTube.search(
+            { continuation: searchResults.artists.continuation, type: 'SEARCH_TYPE_ARTIST' },
+            (searchResult) => {
+                setSearchResults((prev) => {
+                    return {
+                        ...prev,
+                        artists: {
+                            query: prev.artists?.query || 'SEARCH_RESULT_FROM_CONTINUATION',
+                            contents: [
+                                ...(prev.artists?.contents || []),
+                                ...(searchResult.contents || [])
+                            ],
+                            continuation: searchResult.continuation
+                        }
+                    };
+                });
+                setIsFetching(false);
+            }
+        );
+    };
+
+    const handleFetchMoreAlbums = () => {
+        if (!searchResults.albums || searchResults.albums?.continuation === undefined) {
+            return;
+        }
+
+        setIsFetching(true);
+        window.innerTube.search(
+            { continuation: searchResults.albums.continuation, type: 'SEARCH_TYPE_ALBUM' },
+            (searchResult) => {
+                setSearchResults((prev) => {
+                    return {
+                        ...prev,
+                        albums: {
+                            query: prev.albums?.query || 'SEARCH_RESULT_FROM_CONTINUATION',
+                            contents: [
+                                ...(prev.albums?.contents || []),
+                                ...(searchResult.contents || [])
+                            ],
+                            continuation: searchResult.continuation
+                        }
+                    };
+                });
+                setIsFetching(false);
+            }
+        );
+    };
+
+    const handleFetchMorePlaylists = () => {
+        if (!searchResults.playlists || searchResults.playlists?.continuation === undefined) {
+            return;
+        }
+
+        setIsFetching(true);
+        window.innerTube.search(
+            { continuation: searchResults.playlists.continuation, type: 'SEARCH_TYPE_PLAYLIST' },
+            (searchResult) => {
+                setSearchResults((prev) => {
+                    return {
+                        ...prev,
+                        playlists: {
+                            query: prev.playlists?.query || 'SEARCH_RESULT_FROM_CONTINUATION',
+                            contents: [
+                                ...(prev.playlists?.contents || []),
                                 ...(searchResult.contents || [])
                             ],
                             continuation: searchResult.continuation
@@ -288,16 +372,34 @@ const Search = () => {
                                 isFetching={isFetching}
                             />
                         )}
+
+                    {tabIndexOnFocus > -1 && tabsToRender[tabIndexOnFocus].id === 'ARTISTS' && (
+                        <ArtistList
+                            artists={searchResults.artists?.contents as Artist[]}
+                            handleFetchMore={handleFetchMoreArtists}
+                            isLoading={isLoading}
+                            isFetching={isFetching}
+                        />
+                    )}
+
+                    {tabIndexOnFocus > -1 && tabsToRender[tabIndexOnFocus].id === 'ALBUMS' && (
+                        <AlbumList
+                            albums={searchResults.albums?.contents as Album[]}
+                            handleFetchMore={handleFetchMoreAlbums}
+                            isLoading={isLoading}
+                            isFetching={isFetching}
+                        />
+                    )}
+
+                    {tabIndexOnFocus > -1 && tabsToRender[tabIndexOnFocus].id === 'PLAYLISTS' && (
+                        <PlaylistList
+                            playlists={searchResults.playlists?.contents as Album[]}
+                            handleFetchMore={handleFetchMorePlaylists}
+                            isLoading={isLoading}
+                            isFetching={isFetching}
+                        />
+                    )}
                 </div>
-                {tabIndexOnFocus > -1 && tabsToRender[tabIndexOnFocus].id === 'ARTISTS' && (
-                    <SearchArtists />
-                )}
-                {tabIndexOnFocus > -1 && tabsToRender[tabIndexOnFocus].id === 'ALBUMS' && (
-                    <SearchAlbums />
-                )}
-                {tabIndexOnFocus > -1 && tabsToRender[tabIndexOnFocus].id === 'PLAYLISTS' && (
-                    <SearchPlaylists />
-                )}
             </div>
 
             {tabIndexOnFocus > -1 && tabsToRender[tabIndexOnFocus].id !== 'MAIN' && (
