@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import type { SearchResult } from '@renderer/types';
 import type { SearchSlice } from '../types';
-import type { SearchResult, SearchType } from '@renderer/types';
 
 const initialState: SearchSlice = {
     searchQuery: '',
@@ -51,9 +51,6 @@ const searchSlice = createSlice({
             if (state.searchResults[action.payload.key] === undefined) {
                 state.searchResults[action.payload.key] = action.payload.result;
             } else {
-                state.searchResults[action.payload.key]!.query =
-                    action.payload.result.query || 'SEARCH_RESULT_FROM_CONTINUATION';
-
                 state.searchResults[action.payload.key]!.contents.push(
                     ...(action.payload.result.contents || [])
                 );

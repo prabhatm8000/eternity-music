@@ -1,6 +1,7 @@
 import type { Album } from '@renderer/types';
 import { useCallback, useRef } from 'react';
 import ThumbnailRenderer from './ThumbnailRenderer';
+import AlbumLoading from './loading/AlbumLoading';
 
 const AlbumList = ({
     albums,
@@ -59,7 +60,7 @@ const AlbumList = ({
 
             {(isLoading || isFetching) && (
                 <div className="text-center text-black/60 dark:text-white/60">
-                    {isLoading ? 'loading...' : 'fetching more...'}
+                    <AlbumLoading howMany={7} />
                 </div>
             )}
         </div>

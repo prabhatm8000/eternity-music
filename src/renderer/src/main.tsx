@@ -1,15 +1,15 @@
 import './assets/main.css';
 
 import ReactDOM from 'react-dom/client';
-import App from './App';
-import { SearchContextProvider } from './contexts/SearchContext';
 import { Provider } from 'react-redux';
+import App from './App';
 import { store } from './redux/store';
+import React from 'react';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-    <Provider store={store}>
-        <SearchContextProvider>
+    <React.StrictMode>
+        <Provider store={store}>
             <App />
-        </SearchContextProvider>
-    </Provider>
+        </Provider>
+    </React.StrictMode>
 );

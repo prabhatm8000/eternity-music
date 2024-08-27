@@ -1,6 +1,7 @@
 import type { Song, Video } from '@renderer/types';
 import { useCallback, useRef } from 'react';
 import ThumbnailRenderer from './ThumbnailRenderer';
+import TrackLoading from './loading/TrackLoading';
 
 const TrackList = ({
     tracks,
@@ -36,10 +37,10 @@ const TrackList = ({
     return (
         <div className="space-y-2 pe-2 overflow-y-auto h-full">
             {!isLoading &&
-                tracks.map((track: Song | Video, index) => (
+                tracks.map((track: Song | Video, index: number) => (
                     <div
                         ref={index === tracks.length - 1 ? lastTrackRef : undefined}
-                        key={track?.watchEndpoint?.videoId + index}
+                        key={index}
                         className={`p-2 grid ${isSongs ? 'grid-cols-[64px_1fr]' : 'grid-cols-[112px_1fr]'} gap-2 items-center rounded-md hover:bg-black/10 dark:hover:bg-white/10 transition-colors duration-100 ease-in focus:outline-none`}
                     >
                         <ThumbnailRenderer
@@ -74,8 +75,8 @@ const TrackList = ({
                 ))}
 
             {(isLoading || isFetching) && (
-                <div className="text-center text-black/60 dark:text-white/60">
-                    {isLoading ? 'loading...' : 'fetching more...'}
+                <div className="flex items-center justify-center">
+                    <TrackLoading howMany={7} isSongs={isSongs} />
                 </div>
             )}
         </div>
