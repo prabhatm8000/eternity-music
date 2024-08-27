@@ -1,6 +1,7 @@
 import type { Playlist } from '@renderer/types';
 import { useCallback, useRef } from 'react';
 import ThumbnailRenderer from './ThumbnailRenderer';
+import PlaylistLoading from './loading/PlaylistLoading';
 
 const PlaylistList = ({
     playlists,
@@ -55,7 +56,7 @@ const PlaylistList = ({
 
             {(isLoading || isFetching) && (
                 <div className="text-center text-black/60 dark:text-white/60">
-                    {isLoading ? 'loading...' : 'fetching more...'}
+                    <PlaylistLoading howMany={7} />
                 </div>
             )}
         </div>

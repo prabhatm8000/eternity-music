@@ -1,12 +1,18 @@
-import { useAppContext } from '@renderer/hooks/useAppContext';
-import HomeIcon from './icons/HomeIcon';
-import SearchIcon from './icons/SearchIcon';
-import LibraryIcon from './icons/LibraryIcon';
-import SettingsIcon from './icons/SettingsIcon';
+import { useAppDispatch, useAppSelector } from '@renderer/redux/hooks/app';
+import type { AppSlice } from '@renderer/redux/types';
 import HelpIcon from './icons/HelpIcon';
+import HomeIcon from './icons/HomeIcon';
+import LibraryIcon from './icons/LibraryIcon';
+import SearchIcon from './icons/SearchIcon';
+import SettingsIcon from './icons/SettingsIcon';
 
 const SideBar = () => {
-    const { setView, view } = useAppContext();
+    const view = useAppSelector((state: { appReducer: AppSlice }) => state.appReducer.view);
+    const dispatch = useAppDispatch();
+
+    const setView = (viewType: AppSlice['view']) => {
+        dispatch({ type: 'app/setView', payload: viewType });
+    };
 
     return (
         <div className="h-screen px-2 py-4 flex flex-col justify-between overflow-auto">

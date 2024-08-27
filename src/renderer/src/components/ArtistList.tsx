@@ -1,6 +1,7 @@
 import type { Artist } from '@renderer/types';
 import { useCallback, useRef } from 'react';
 import ThumbnailRenderer from './ThumbnailRenderer';
+import ArtistLoading from './loading/ArtistLoading';
 
 const ArtistList = ({
     artists,
@@ -55,7 +56,7 @@ const ArtistList = ({
 
             {(isLoading || isFetching) && (
                 <div className="text-center text-black/60 dark:text-white/60">
-                    {isLoading ? 'loading...' : 'fetching more...'}
+                    <ArtistLoading howMany={7} />
                 </div>
             )}
         </div>
