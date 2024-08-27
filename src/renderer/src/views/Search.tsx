@@ -3,7 +3,8 @@ import ArtistList from '@renderer/components/ArtistList';
 import SearchIcon from '@renderer/components/icons/SearchIcon';
 import PlaylistList from '@renderer/components/PlaylistList';
 import TrackList from '@renderer/components/TrackList';
-import { useSearchContext } from '@renderer/hooks/useSearchContext';
+import { useSearchDispatch, useSearchSelector } from '@renderer/redux/hooks/search';
+import type { SearchSlice } from '@renderer/redux/types';
 import type { Album, Artist, SearchResult, SearchType, Song, Video } from '@renderer/types';
 import { useEffect, useState } from 'react';
 import SearchMain from './SearchViews/SearchMain';
@@ -33,27 +34,42 @@ const tabsToRender: { id: TabType; label: string }[] = [
 ];
 
 const Search = () => {
-    const {
-        tabIndexOnFocus,
-        setTabIndexOnFocus,
-        prevTabIndex,
-        setPrevTabIndex,
-        searchQuery,
-        setSearchQuery,
+    const { prevTabIndex, searchQuery, searchResults, tabIndexOnFocus } = useSearchSelector(
+        (state) => state.searchReducer
+    );
 
-        searchResults,
-        setSearchResults
-    } = useSearchContext();
+    // #region search hooks
+    const searchDispatch = useSearchDispatch();
+
+    const setPrevTabIndex = (index: SearchSlice['prevTabIndex']) => {
+        searchDispatch({ type: 'search/setPrevTabIndex', payload: index });
+    };
+
+    const setSearchQuery = (query: SearchSlice['searchQuery']) => {
+        searchDispatch({ type: 'search/setSearchQuery', payload: query });
+    };
+
+    const setSearchResult = (key, result: SearchResult) => {
+        searchDispatch({ type: 'search/setSearchResult', payload: { key, result } });
+    };
+
+    const setTabIndexOnFocus = (index: SearchSlice['tabIndexOnFocus']) => {
+        searchDispatch({ type: 'search/setTabIndexOnFocus', payload: index });
+    };
+
+    const addSearchResultContinuation = (key, result: SearchResult) => {
+        searchDispatch({ type: 'search/addSearchResultContinuation', payload: { key, result } });
+    };
+    // #endregion
 
     const [searchResultTabsOnFocus, setSearchResultTabsOnFocus] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isFetching, setIsFetching] = useState(false);
+    const [fetchMoreResults, setFetchMoreResults] = useState<SearchType | undefined>(undefined);
 
     const handleSearchFloatingBtn = () => {
-        setTabIndexOnFocus((prevVal) => {
-            setPrevTabIndex(prevVal);
-            return -1;
-        });
+        setPrevTabIndex(tabIndexOnFocus);
+        setTabIndexOnFocus(-1);
     };
 
     const handleSearch = (query: string) => {
@@ -67,21 +83,14 @@ const Search = () => {
     useEffect(() => {
         const handleUpDownKeys = (ev: KeyboardEvent) => {
             if (ev.key === 'ArrowLeft') {
-                setTabIndexOnFocus((prevIndex) => {
-                    setPrevTabIndex(prevIndex);
-                    if (prevIndex > 0) {
-                        return prevIndex - 1;
-                    }
-                    return tabsToRender.length - 1;
-                });
+                setPrevTabIndex(tabIndexOnFocus);
+                setTabIndexOnFocus(
+                    tabIndexOnFocus > 0 ? tabIndexOnFocus - 1 : tabsToRender.length - 1
+                );
             } else if (ev.key === 'ArrowRight') {
-                setTabIndexOnFocus((prevIndex) => {
-                    setPrevTabIndex(prevIndex);
-                    if (prevIndex < tabsToRender.length - 1) {
-                        return prevIndex + 1;
-                    }
-                    return 0;
-                });
+                setTabIndexOnFocus(
+                    tabIndexOnFocus < tabsToRender.length - 1 ? tabIndexOnFocus + 1 : 0
+                );
             }
         };
 
@@ -142,155 +151,50 @@ const Search = () => {
         }
 
         setIsLoading(true);
-        window.innerTube.search({ query: searchQuery, type: type }, (searchResult) => {
-            console.log(type, searchResult);
+        window.innerTube.search({ query: searchQuery, type: type }, (result) => {
+            console.log(type, result);
 
-            setSearchResults((prev) => {
-                return {
-                    ...prev,
-                    [key]: searchResult
-                };
-            });
+            setSearchResult(key, result);
             setIsLoading(false);
         });
-    }, [searchQuery, tabIndexOnFocus]);
+    }, [searchQuery, tabIndexOnFocus, searchResults]);
 
-    const handleFetchMoreSongs = () => {
-        console.log(searchResults.songs?.continuation, 'continuation');
-
-        if (!searchResults.songs || searchResults.songs?.continuation === undefined) {
+    // Fetch More
+    useEffect(() => {
+        if (fetchMoreResults === undefined) {
             return;
         }
 
-        setIsFetching(true);
-        window.innerTube.search(
-            { continuation: searchResults.songs.continuation, type: 'SEARCH_TYPE_SONG' },
-            (searchResult) => {
-                setSearchResults((prev) => {
-                    return {
-                        ...prev,
-                        songs: {
-                            query: prev.songs?.query || 'SEARCH_RESULT_FROM_CONTINUATION',
-                            contents: [
-                                ...(prev.songs?.contents || []),
-                                ...(searchResult.contents || [])
-                            ],
-                            continuation: searchResult.continuation
-                        }
-                    };
-                });
-                setIsFetching(false);
-            }
-        );
-    };
+        let key: string;
 
-    const handleFetchMoreVideos = () => {
-        if (!searchResults.videos || searchResults.videos?.continuation === undefined) {
-            return;
+        switch (fetchMoreResults) {
+            case 'SEARCH_TYPE_ALBUM':
+                key = 'albums';
+            case 'SEARCH_TYPE_ARTIST':
+                key = 'artists';
+            case 'SEARCH_TYPE_PLAYLIST':
+                key = 'playlists';
+            case 'SEARCH_TYPE_VIDEO':
+                key = 'videos';
+            default:
+                key = 'songs';
         }
 
-        setIsFetching(true);
-        window.innerTube.search(
-            { continuation: searchResults.videos.continuation, type: 'SEARCH_TYPE_VIDEO' },
-            (searchResult) => {
-                setSearchResults((prev) => {
-                    return {
-                        ...prev,
-                        videos: {
-                            query: prev.videos?.query || 'SEARCH_RESULT_FROM_CONTINUATION',
-                            contents: [
-                                ...(prev.videos?.contents || []),
-                                ...(searchResult.contents || [])
-                            ],
-                            continuation: searchResult.continuation
-                        }
-                    };
-                });
-                setIsFetching(false);
+        const handleFetchMore = (key, type: SearchType, continuation: string) => {
+            if (!searchResults[key] || searchResults[key]?.continuation === undefined) {
+                return;
             }
-        );
-    };
-
-    const handleFetchMoreArtists = () => {
-        if (!searchResults.artists || searchResults.artists?.continuation === undefined) {
-            return;
-        }
-
-        setIsFetching(true);
-        window.innerTube.search(
-            { continuation: searchResults.artists.continuation, type: 'SEARCH_TYPE_ARTIST' },
-            (searchResult) => {
-                setSearchResults((prev) => {
-                    return {
-                        ...prev,
-                        artists: {
-                            query: prev.artists?.query || 'SEARCH_RESULT_FROM_CONTINUATION',
-                            contents: [
-                                ...(prev.artists?.contents || []),
-                                ...(searchResult.contents || [])
-                            ],
-                            continuation: searchResult.continuation
-                        }
-                    };
-                });
+    
+            setIsFetching(true);
+            window.innerTube.search({ continuation, type }, (result) => {
+                addSearchResultContinuation(key, result);
                 setIsFetching(false);
-            }
-        );
-    };
+            });
+            setFetchMoreResults(undefined);
+        };
 
-    const handleFetchMoreAlbums = () => {
-        if (!searchResults.albums || searchResults.albums?.continuation === undefined) {
-            return;
-        }
-
-        setIsFetching(true);
-        window.innerTube.search(
-            { continuation: searchResults.albums.continuation, type: 'SEARCH_TYPE_ALBUM' },
-            (searchResult) => {
-                setSearchResults((prev) => {
-                    return {
-                        ...prev,
-                        albums: {
-                            query: prev.albums?.query || 'SEARCH_RESULT_FROM_CONTINUATION',
-                            contents: [
-                                ...(prev.albums?.contents || []),
-                                ...(searchResult.contents || [])
-                            ],
-                            continuation: searchResult.continuation
-                        }
-                    };
-                });
-                setIsFetching(false);
-            }
-        );
-    };
-
-    const handleFetchMorePlaylists = () => {
-        if (!searchResults.playlists || searchResults.playlists?.continuation === undefined) {
-            return;
-        }
-
-        setIsFetching(true);
-        window.innerTube.search(
-            { continuation: searchResults.playlists.continuation, type: 'SEARCH_TYPE_PLAYLIST' },
-            (searchResult) => {
-                setSearchResults((prev) => {
-                    return {
-                        ...prev,
-                        playlists: {
-                            query: prev.playlists?.query || 'SEARCH_RESULT_FROM_CONTINUATION',
-                            contents: [
-                                ...(prev.playlists?.contents || []),
-                                ...(searchResult.contents || [])
-                            ],
-                            continuation: searchResult.continuation
-                        }
-                    };
-                });
-                setIsFetching(false);
-            }
-        );
-    };
+        handleFetchMore(key, fetchMoreResults, searchResults[key]?.continuation);
+    }, [fetchMoreResults]);
 
     return (
         <div className="px-2">
@@ -365,8 +269,8 @@ const Search = () => {
                                 isSongs={tabsToRender[tabIndexOnFocus].id === 'SONGS'}
                                 handleFetchMore={
                                     tabsToRender[tabIndexOnFocus].id === 'SONGS'
-                                        ? handleFetchMoreSongs
-                                        : handleFetchMoreVideos
+                                        ? () => setFetchMoreResults('SEARCH_TYPE_SONG')
+                                        : () => setFetchMoreResults('SEARCH_TYPE_VIDEO')
                                 }
                                 isLoading={isLoading}
                                 isFetching={isFetching}
@@ -376,7 +280,7 @@ const Search = () => {
                     {tabIndexOnFocus > -1 && tabsToRender[tabIndexOnFocus].id === 'ARTISTS' && (
                         <ArtistList
                             artists={searchResults.artists?.contents as Artist[]}
-                            handleFetchMore={handleFetchMoreArtists}
+                            handleFetchMore={() => setFetchMoreResults('SEARCH_TYPE_ARTIST')}
                             isLoading={isLoading}
                             isFetching={isFetching}
                         />
@@ -385,7 +289,7 @@ const Search = () => {
                     {tabIndexOnFocus > -1 && tabsToRender[tabIndexOnFocus].id === 'ALBUMS' && (
                         <AlbumList
                             albums={searchResults.albums?.contents as Album[]}
-                            handleFetchMore={handleFetchMoreAlbums}
+                            handleFetchMore={() => setFetchMoreResults('SEARCH_TYPE_ALBUM')}
                             isLoading={isLoading}
                             isFetching={isFetching}
                         />
@@ -394,7 +298,7 @@ const Search = () => {
                     {tabIndexOnFocus > -1 && tabsToRender[tabIndexOnFocus].id === 'PLAYLISTS' && (
                         <PlaylistList
                             playlists={searchResults.playlists?.contents as Album[]}
-                            handleFetchMore={handleFetchMorePlaylists}
+                            handleFetchMore={() => setFetchMoreResults('SEARCH_TYPE_PLAYLIST')}
                             isLoading={isLoading}
                             isFetching={isFetching}
                         />
