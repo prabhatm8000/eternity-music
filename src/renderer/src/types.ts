@@ -1,4 +1,4 @@
-export type ViewType = 'HOME' | 'SEARCH' | 'LIBRARY' | 'SETTINGS' | 'HELP';
+export type ViewType = 'HOME' | 'SEARCH' | 'LIBRARY' | 'SETTINGS' | 'HELP' | 'BROWSE';
 
 export type ContinuationBody = {
     continuation: string;
@@ -112,7 +112,7 @@ export type ArtistPage = {
     radioEndpoint: any;
     songs: Song[];
     songsEndpoint: BrowserEndPoint;
-    albums: Album;
+    albums: Album[];
     albumsEndpoint: BrowserEndPoint;
     singles: Single[];
     singlesEndpoint: BrowserEndPoint;

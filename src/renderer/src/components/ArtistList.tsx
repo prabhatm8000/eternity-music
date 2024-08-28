@@ -2,6 +2,7 @@ import type { Artist } from '@renderer/types';
 import { useCallback, useRef } from 'react';
 import ThumbnailRenderer from './ThumbnailRenderer';
 import ArtistLoading from './loading/ArtistLoading';
+import { useAppDispatch } from '@renderer/redux/hooks/app';
 
 const ArtistList = ({
     artists,
@@ -14,6 +15,22 @@ const ArtistList = ({
     isLoading?: boolean;
     isFetching?: boolean;
 }) => {
+    const dispatch = useAppDispatch();
+
+    const setBrowse = (browseId: string) => {
+        dispatch({
+            type: 'app/setBrowse',
+            payload: {
+                browseId,
+                pageType: 'BROWSER_ARTIST'
+            }
+        });
+    };
+
+    const handleClick = (browseId: string) => {
+        setBrowse(browseId);
+    };
+
     const artistObserver = useRef<IntersectionObserver | null>(null);
     const lastArtistRef = useCallback(
         (element: HTMLDivElement) => {
@@ -36,9 +53,10 @@ const ArtistList = ({
             {!isLoading &&
                 artists?.map((artist: Artist, index) => (
                     <div
+                        onClick={() => handleClick(artist.browserEndpoint.browseId)}
                         ref={index === artists.length - 1 ? lastArtistRef : undefined}
                         key={artist?.browserEndpoint.browseId + index}
-                        className={`p-2 grid grid-cols-[64px_1fr] gap-2 items-center rounded-md hover:bg-black/10 dark:hover:bg-white/10 transition-colors duration-100 ease-in focus:outline-none`}
+                        className={`cursor-pointer p-2 grid grid-cols-[64px_1fr] gap-2 items-center rounded-md hover:bg-black/10 dark:hover:bg-white/10 transition-colors duration-100 ease-in focus:outline-none`}
                     >
                         <ThumbnailRenderer
                             url={artist.thumbnail[artist.thumbnail.length - 1].url}

@@ -103,7 +103,8 @@ export type BrowserEndPoint = {
 
 export type BrowseBody = {
     browseId: string;
-    pageType: 'ALBUM' | 'ARTIST' | 'PLAYLIST';
+    pageType: 'ALBUM' | 'ARTIST' | 'PLAYLIST' | 'SONG';
+    continuation?: string;
 };
 
 export type ArtistPage = {
@@ -115,7 +116,7 @@ export type ArtistPage = {
     radioEndpoint: any;
     songs: Song[];
     songsEndpoint: BrowserEndPoint;
-    albums: Album;
+    albums: Album[];
     albumsEndpoint: BrowserEndPoint;
     singles: Single[];
     singlesEndpoint: BrowserEndPoint;

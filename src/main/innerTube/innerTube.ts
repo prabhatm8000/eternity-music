@@ -129,7 +129,10 @@ export default class InnerTube {
         return searchResult;
     }
 
-    private filterAndOrganizeSearchResult(content, type: SearchType): Content {
+    private filterAndOrganizeSearchResult(
+        content,
+        type: SearchType | 'ALBUM' | 'ARTIST' | 'PLAYLIST' | 'SONG'
+    ): Content {
         let thumbnail: Thumbnail[],
             title: string,
             watchEndpoint!: WatchEndpoint,
@@ -276,28 +279,33 @@ export default class InnerTube {
         return searchSuggestions;
     }
 
-    async browse(browseBody: BrowseBody): Promise<ArtistPage | AlbumPage | PlaylistPage | null> {
-        const res = await fetch(`https://music.youtube.com${ApiPaths.browse}?prettyPrint=false`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Goog-Api-Key': XGoogApiKey,
+    async browse(
+        browseBody: BrowseBody
+    ): Promise<ArtistPage | AlbumPage | PlaylistPage | SearchResult | null> {
+        const res = await fetch(
+            `https://music.youtube.com${ApiPaths.browse}?prettyPrint=false&continuation=${browseBody.continuation}&ctoken=${browseBody.continuation}&type=${browseBody.continuation ? 'next' : null}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Goog-Api-Key': XGoogApiKey,
 
-                // masking the non-required fields
-                'X-Goog-FieldMask': 'contents,header',
-                Accept: '*/*'
-            },
-            body: JSON.stringify({
-                context: {
-                    client: {
-                        clientName: 'WEB_REMIX',
-                        clientVersion: '1.20240724.00.00',
-                        hl: 'en'
-                    }
+                    // masking the non-required fields
+                    'X-Goog-FieldMask': 'contents,header',
+                    Accept: '*/*'
                 },
-                browseId: browseBody.browseId
-            })
-        });
+                body: JSON.stringify({
+                    context: {
+                        client: {
+                            clientName: 'WEB_REMIX',
+                            clientVersion: '1.20240724.00.00',
+                            hl: 'en'
+                        }
+                    },
+                    browseId: !browseBody.continuation ? browseBody.browseId : null
+                })
+            }
+        );
 
         console.log(
             'api call: browse;',
@@ -312,7 +320,12 @@ export default class InnerTube {
 
         const jsonData = await res.json();
 
-        let output: ArtistPage | AlbumPage | PlaylistPage | null = null;
+        console.log('jsonData:', jsonData);
+        
+
+        writeFileSync('./testingData.json', JSON.stringify(jsonData));
+
+        let output: ArtistPage | AlbumPage | PlaylistPage | SearchResult | null = null;
 
         if (browseBody.pageType === 'ARTIST') {
             output = {
@@ -466,6 +479,49 @@ export default class InnerTube {
             };
 
             output.totalTracks = output.videos.length;
+        } else if (browseBody.pageType === 'SONG') {
+            const data =
+                jsonData?.contents?.twoColumnBrowseResultsRenderer?.secondaryContents
+                    ?.sectionListRenderer?.contents[0]?.musicPlaylistShelfRenderer;
+
+            output = {
+                query: 'SEARCH_RESULT_FROM_CONTINUATION',
+                continuation: data?.continuations[0]?.nextContinuationData?.continuation,
+                contents: data?.contents?.map((content): Song => {
+                    return {
+                        thumbnail:
+                            content?.musicResponsiveListItemRenderer?.thumbnail
+                                ?.musicThumbnailRenderer?.thumbnail?.thumbnails,
+
+                        title: content?.musicResponsiveListItemRenderer?.flexColumns[0]
+                            ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs[0]?.text,
+
+                        watchEndpoint:
+                            content?.musicResponsiveListItemRenderer?.flexColumns[0]
+                                ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs[0]
+                                ?.navigationEndpoint?.watchEndpoint,
+
+                        artist: [
+                            {
+                                name: content?.musicResponsiveListItemRenderer?.flexColumns[1]
+                                    ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs[0]
+                                    ?.text,
+                                browserEndPoint:
+                                    content?.musicResponsiveListItemRenderer?.flexColumns[1]
+                                        ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs[0]
+                                        ?.navigationEndpoint?.browseEndpoint
+                            }
+                        ],
+
+                        plays: content?.musicResponsiveListItemRenderer?.flexColumns[2]
+                            ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs[0]?.text,
+
+                        duration:
+                            content?.musicResponsiveListItemRenderer?.fixedColumns[0]
+                                ?.musicResponsiveListItemFixedColumnRenderer?.text?.runs[0]?.text
+                    };
+                })
+            };
         }
 
         return output;
@@ -566,10 +622,12 @@ export default class InnerTube {
 // const innerTube = new InnerTube();
 
 // innerTube
-//     .search({
-//         query: 'espresso',
-//         type: 'SEARCH_TYPE_ARTIST'
+//     .browse({
+//         browseId: 'VLOLAK5uy_mXBO622tZCgqntrfoq2C5RA1rKyFtr3BQ',
+//         pageType: 'SONG',
+//         continuation:
+//             '4qmFsgKQAhIrVkxPTEFLNXV5X21YQk82MjJ0WkNncW50cmZvcTJDNVJBMXJLeUZ0cjNCURrgAWVwb0JVRlE2UTBkUmFVVkVXa1JPUkVaRFRtcGpNazU2UVhwTlZVVXpUbnByYjBGVmFsSnBXazlyYVVwbFNVRXhRVUpYYXpScFVUSnNjMVZHVWtaU2EzaFBWMFpaTVZkRVNYaFhWa1p5VDBSS1RtRnJiM2RXTW5SUFltMU9XRTVVUW1waVZuQXlXVEZTUzFKRk5WZFRhMHBPVjBWd1RWcFdWbUZOUjA1eFZHdE9WbFZyYkU1Uk1EbDBVMWhWTTFkVlpFWlVNbkI2VG5wYWVsRjVTWklCQXdpNkJBJTNEJTNE'
 //     })
 //     .then((res) => {
-//         writeFileSync('./testingData.json', JSON.stringify(res));
+//         // writeFileSync('./testingData.json', JSON.stringify(res));
 //     });
