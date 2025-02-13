@@ -1,11 +1,11 @@
 import constants from "../constants";
-import { CallerDataFilterationError } from "../errors/caller";
+import { CallerDataFilterationError } from "../errors/functions";
 import fetcher from "../helper/fetcher";
 import {
+    type Item,
+    type ItemSubTitle,
     type SearchQuery,
     type SearchResult,
-    type ItemSubTitle,
-    type SearchItem,
 } from "../types";
 
 export default async function Search(
@@ -83,14 +83,17 @@ export default async function Search(
     }
 }
 
-function subTitlesCreator(itemRenderer: any, title: string): ItemSubTitle[] {
+export function subTitlesCreatorWithFlexColumn(
+    itemRenderer: any,
+    title: string
+): ItemSubTitle[] {
     const subTitles = Array<any>(0);
     itemRenderer?.flexColumns?.forEach((flexColumn: any) => {
         const item =
             flexColumn?.musicResponsiveListItemFlexColumnRenderer?.text?.runs?.map(
                 (run: any) => {
                     return {
-                        text: run?.text === title ? "" : run?.text,
+                        text: run?.text,
                         browse: run?.navigationEndpoint?.browseEndpoint,
                     };
                 }
@@ -99,6 +102,27 @@ function subTitlesCreator(itemRenderer: any, title: string): ItemSubTitle[] {
         subTitles.push(...item);
     });
     return subTitles;
+}
+
+export function musicResponsiveListItemRendererMask(item: any): Item {
+    const renderer = item.musicResponsiveListItemRenderer;
+    const title =
+        renderer?.flexColumns?.[0]?.musicResponsiveListItemFlexColumnRenderer
+            ?.text?.runs?.[0]?.text;
+    const watchId =
+        renderer?.flexColumns?.[0]?.musicResponsiveListItemFlexColumnRenderer
+            ?.text?.runs?.[0]?.navigationEndpoint?.watchEndpoint?.videoId;
+    const browse = renderer?.navigationEndpoint?.browseEndpoint;
+    const subTitles = subTitlesCreatorWithFlexColumn(renderer, title);
+    const thumbnails =
+        renderer?.thumbnail?.musicThumbnailRenderer?.thumbnail?.thumbnails;
+    return {
+        title,
+        browse,
+        watchId,
+        subTitles,
+        thumbnails,
+    };
 }
 
 function filterSongs(response: any, continuation: boolean): SearchResult {
@@ -114,28 +138,9 @@ function filterSongs(response: any, continuation: boolean): SearchResult {
               ?.musicShelfRenderer
         : response?.continuationContents?.musicShelfContinuation;
 
-    result.results = renderer?.contents?.map((content: any): SearchItem => {
-        const itemRenderer = content?.musicResponsiveListItemRenderer;
-
-        const title =
-            itemRenderer?.flexColumns?.[0]
-                ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs?.[0]
-                ?.text;
-
-        const subTitles = subTitlesCreator(itemRenderer, title);
-
-        return {
-            title,
-            watchId:
-                itemRenderer?.flexColumns?.[0]
-                    ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs?.[0]
-                    ?.navigationEndpoint?.watchEndpoint?.videoId,
-            thumbnails:
-                itemRenderer?.thumbnail?.musicThumbnailRenderer?.thumbnail
-                    ?.thumbnails,
-            subTitles,
-        };
-    });
+    result.results = renderer?.contents?.map(
+        musicResponsiveListItemRendererMask
+    );
 
     result.continuation =
         renderer?.continuations?.[0]?.nextContinuationData?.continuation;
@@ -156,30 +161,9 @@ function filterVideos(response: any, continuation: boolean): SearchResult {
               ?.musicShelfRenderer
         : response?.continuationContents?.musicShelfContinuation;
 
-    result.results = renderer?.contents?.map((content: any): SearchItem => {
-        const itemRenderer = content?.musicResponsiveListItemRenderer;
-
-        const title =
-            itemRenderer?.flexColumns?.[0]
-                ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs?.[0]
-                ?.text;
-
-        const watchId =
-            itemRenderer?.flexColumns?.[0]
-                ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs?.[0]
-                ?.navigationEndpoint?.watchEndpoint?.videoId;
-
-        const subTitles = subTitlesCreator(itemRenderer, title);
-
-        return {
-            watchId,
-            title,
-            thumbnails:
-                itemRenderer?.thumbnail?.musicThumbnailRenderer?.thumbnail
-                    ?.thumbnails,
-            subTitles,
-        };
-    });
+    result.results = renderer?.contents?.map(
+        musicResponsiveListItemRendererMask
+    );
 
     result.continuation =
         renderer?.continuations?.[0]?.nextContinuationData?.continuation;
@@ -204,26 +188,9 @@ function filterArtistsAlbumsPlaylists(
               ?.musicShelfRenderer
         : response?.continuationContents?.musicShelfContinuation;
 
-    result.results = renderer?.contents?.map((content: any): SearchItem => {
-        const itemRenderer = content?.musicResponsiveListItemRenderer;
-
-        const browse = itemRenderer?.navigationEndpoint?.browseEndpoint;
-        const title =
-            itemRenderer?.flexColumns?.[0]
-                ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs?.[0]
-                ?.text;
-        const thumbnails =
-            itemRenderer?.thumbnail?.musicThumbnailRenderer?.thumbnail
-                ?.thumbnails;
-        const subTitles = subTitlesCreator(itemRenderer, title);
-
-        return {
-            browse,
-            title,
-            thumbnails,
-            subTitles,
-        };
-    });
+    result.results = renderer?.contents?.map(
+        musicResponsiveListItemRendererMask
+    );
 
     result.continuation =
         renderer?.continuations?.[0]?.nextContinuationData?.continuation;

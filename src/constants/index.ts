@@ -1,11 +1,11 @@
 const ApiBaseUrl = "https://music.youtube.com";
 const ApiPaths = {
+    searchSuggestions: "/youtubei/v1/music/get_search_suggestions",
+    search: "/youtubei/v1/search",
     browse: "/youtubei/v1/browse",
     next: "/youtubei/v1/next",
     player: "/youtubei/v1/player",
     queue: "/youtubei/v1/music/get_queue",
-    search: "/youtubei/v1/search",
-    searchSuggestions: "/youtubei/v1/music/get_search_suggestions",
 };
 const searchFilterParams = {
     Song: "EgWKAQIIAWoQEAMQBBAFEAkQChAREBAQFQ%3D%3D",
