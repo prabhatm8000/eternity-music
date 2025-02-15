@@ -3,6 +3,11 @@ import Browse from "./functions/browse";
 import Search from "./functions/search";
 import type { SearchType } from "./types";
 import SearchSuggestions from "./functions/searchSuggestions";
+import Player from "./functions/player";
+
+const sleep = async (t: number) => {
+    await new Promise((resolve) => setTimeout(resolve, t));
+};
 
 async function testSearchSuggestions() {
     console.info("Search Suggestions Testing...");
@@ -10,11 +15,11 @@ async function testSearchSuggestions() {
     const suggestions = await SearchSuggestions("never");
 
     fs.writeFileSync(
-        "testres/searchSuggestions.json",
+        "testres/search/searchSuggestions.json",
         JSON.stringify(suggestions, null, 2)
     );
 
-    console.info("Search Suggestions Done!");
+    console.info("\nSearch Suggestions Done!\n\n");
 }
 
 async function testSearch(type?: SearchType) {
@@ -34,7 +39,6 @@ async function testSearch(type?: SearchType) {
             JSON.stringify(searchResults, null, 2)
         );
         if (searchResults.continuation) {
-            await new Promise((resolve) => setTimeout(resolve, 500));
             const continuationResults = await Search({
                 searchType: type as SearchType,
                 continuation: searchResults.continuation,
@@ -45,7 +49,7 @@ async function testSearch(type?: SearchType) {
             );
         }
         console.log(`Search ${type} Done!`);
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        await sleep(500);
     }
     console.log("\nSearch Testing Done!\n\n");
 }
@@ -69,6 +73,7 @@ async function testBrowse() {
         JSON.stringify(browseData, null, 2)
     );
     console.log(`Browse Artist Done!`);
+    await sleep(500);
 
     // discography
     const discographyBrowseData = await Browse({
@@ -86,6 +91,7 @@ async function testBrowse() {
         JSON.stringify(discographyBrowseData, null, 2)
     );
     console.log(`Browse Discography Done!`);
+    await sleep(500);
 
     // Album
     const albumBrowseData = await Browse({
@@ -103,6 +109,7 @@ async function testBrowse() {
         JSON.stringify(albumBrowseData, null, 2)
     );
     console.log(`Browse Album Done!`);
+    await sleep(500);
 
     // Playlist
     const playlistBrowseData = await Browse({
@@ -120,6 +127,7 @@ async function testBrowse() {
         JSON.stringify(playlistBrowseData, null, 2)
     );
     console.log(`Browse Playlist Done!`);
+    await sleep(500);
 
     // Channel
     const channelBrowseData = await Browse({
@@ -137,14 +145,26 @@ async function testBrowse() {
         JSON.stringify(channelBrowseData, null, 2)
     );
     console.log(`Browse Channel Done!`);
+    await sleep(500);
 
     console.log("\nBrowse Testing Done!\n\n");
 }
 
-const test = () => {
-    testSearchSuggestions();
-    testSearch();
-    testBrowse();
+async function testPlayer() {
+    const playerData = await Player("4N15045PHEA");
+    fs.writeFileSync(
+        `testres/player/player.json`,
+        JSON.stringify(playerData, null, 2)
+    );
+    console.log(`Player Testing Done!`);
+    await sleep(500);
+}
+
+const test = async () => {
+    await testSearchSuggestions();
+    await testSearch();
+    await testBrowse();
 };
 
-test();
+// test();
+testPlayer();
